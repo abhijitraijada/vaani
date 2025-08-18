@@ -1,9 +1,8 @@
-import type { PropsWithChildren, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 export function MobileSplit({
   primary,
   secondary,
-  secondaryTitle,
 }: {
   primary: ReactNode;
   secondary: ReactNode;
