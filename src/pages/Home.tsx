@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Container, Section } from '../components/primitives/Layout';
-import { Text, Link as ALink } from '../components/primitives/Typography';
+import { Text } from '../components/primitives/Typography';
 import { Button } from '../components/primitives/Button';
 import { Footer } from '../components/navigation/AppShell';
 import { useState, useEffect } from 'react';
@@ -351,9 +351,12 @@ export default function Home() {
       <Footer>
         <div className="text-center">
           <Text className="text-sm">
-            <ALink href="/contact" className="text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium">
+            <div 
+              onClick={() => navigate('/contact')} 
+              className="text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium cursor-pointer hover:underline"
+            >
               Contact Us
-            </ALink>
+            </div>
           </Text>
         </div>
       </Footer>
