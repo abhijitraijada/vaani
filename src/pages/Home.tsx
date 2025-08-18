@@ -5,7 +5,7 @@ import { Button } from '../components/primitives/Button';
 import { Footer } from '../components/navigation/AppShell';
 import { useState, useEffect } from 'react';
 
-export default function Home() {
+export default function Home() { 
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [currentDate, setCurrentDate] = useState<Date | null>(null);
