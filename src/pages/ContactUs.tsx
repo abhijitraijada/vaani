@@ -126,15 +126,15 @@ export default function ContactUs() {
                       <div className="font-semibold text-lg">2</div>
                     </td>
                     <td className="bg-blue-50 dark:bg-blue-900/20 px-6 py-4 text-center border-b border-gray-200 dark:border-gray-700">
-                      <div className="font-semibold text-lg">Mir Basu Raijada</div>
+                      <div className="font-semibold text-lg">Amarjit Raijada</div>
                     </td>
                     <td className="bg-blue-50 dark:bg-blue-900/20 px-6 py-4 text-center border-b border-gray-200 dark:border-gray-700">
                       <Button
-                        onClick={() => window.open('tel:+919979882738')}
+                        onClick={() => window.open('tel:+918980623292')}
                         variant="secondary"
                         className="text-blue-600 hover:text-blue-700 hover:bg-blue-100 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/30"
                       >
-                        +91 99798 82738
+                        +91 89806 23292
                       </Button>
                     </td>
                   </tr>
