@@ -75,11 +75,53 @@ export default function ContactUs() {
                 </div>
                 <div className="text-center">
                   <Button
-                    onClick={() => window.open('tel:+919033779035', '_blank')}
+                    onClick={() => window.open('tel:+919033779035')}
                     variant="secondary"
                     className="w-full text-blue-600 hover:text-blue-700 hover:bg-blue-100 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/30"
                   >
                     +91 90337 79035
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Contact Card 4 */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+              <div className="bg-indigo-600 text-white px-6 py-4 text-center">
+                <div className="text-xl font-bold">4</div>
+              </div>
+              <div className="p-6">
+                <div className="text-center mb-4">
+                  <div className="font-semibold text-lg text-gray-900 dark:text-gray-100 mb-2">Dharmedrasinh</div>
+                </div>
+                <div className="text-center">
+                  <Button
+                    onClick={() => window.open('tel:+919998933283')}
+                    variant="secondary"
+                    className="w-full text-blue-600 hover:text-blue-700 hover:bg-blue-100 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/30"
+                  >
+                    +91 99989 33283
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Contact Card 5 */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+              <div className="bg-indigo-600 text-white px-6 py-4 text-center">
+                <div className="text-xl font-bold">5</div>
+              </div>
+              <div className="p-6">
+                <div className="text-center mb-4">
+                  <div className="font-semibold text-lg text-gray-900 dark:text-gray-100 mb-2">Mayursinh Gohil</div>
+                </div>
+                <div className="text-center">
+                  <Button
+                    onClick={() => window.open('tel:+919978346183')}
+                    variant="secondary"
+                    className="w-full text-blue-600 hover:text-blue-700 hover:bg-blue-100 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/30"
+                  >
+                    +91 99783 46183
                   </Button>
                 </div>
               </div>
@@ -147,11 +189,45 @@ export default function ContactUs() {
                     </td>
                     <td className="bg-blue-50 dark:bg-blue-900/20 px-6 py-4 text-center border-b border-gray-200 dark:border-gray-700">
                       <Button
-                        onClick={() => window.open('tel:+919033779035', '_blank')}
+                        onClick={() => window.open('tel:+919033779035')}
                         variant="secondary"
                         className="text-blue-600 hover:text-blue-700 hover:bg-blue-100 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/30"
                       >
                         +91 90337 79035
+                      </Button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="bg-indigo-50 dark:bg-indigo-900/20 px-6 py-4 text-center border-b border-gray-200 dark:border-gray-700">
+                      <div className="font-semibold text-lg">4</div>
+                    </td>
+                    <td className="bg-blue-50 dark:bg-blue-900/20 px-6 py-4 text-center border-b border-gray-200 dark:border-gray-700">
+                      <div className="font-semibold text-lg">Dharmedrasinh</div>
+                    </td>
+                    <td className="bg-blue-50 dark:bg-blue-900/20 px-6 py-4 text-center border-b border-gray-200 dark:border-gray-700">
+                      <Button
+                        onClick={() => window.open('tel:+919998933283')}
+                        variant="secondary"
+                        className="text-blue-600 hover:text-blue-700 hover:bg-blue-100 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/30"
+                      >
+                        +91 99989 33283
+                      </Button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="bg-indigo-50 dark:bg-indigo-900/20 px-6 py-4 text-center border-b border-gray-200 dark:border-gray-700">
+                      <div className="font-semibold text-lg">5</div>
+                    </td>
+                    <td className="bg-blue-50 dark:bg-blue-900/20 px-6 py-4 text-center border-b border-gray-200 dark:border-gray-700">
+                      <div className="font-semibold text-lg">Mayursinh Gohil</div>
+                    </td>
+                    <td className="bg-blue-50 dark:bg-blue-900/20 px-6 py-4 text-center border-b border-gray-200 dark:border-gray-700">
+                      <Button
+                        onClick={() => window.open('tel:+919978346183')}
+                        variant="secondary"
+                        className="text-blue-600 hover:text-blue-700 hover:bg-blue-100 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/30"
+                      >
+                        +91 99783 46183
                       </Button>
                     </td>
                   </tr>
