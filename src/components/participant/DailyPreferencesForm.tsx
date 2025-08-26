@@ -1,17 +1,19 @@
 import type { FormEvent } from 'react';
-import { Card, Stack, Grid } from '../primitives/Layout';
+import { Card, Stack } from '../primitives/Layout';
 import { Heading, Text } from '../primitives/Typography';
 import { Button } from '../primitives/Button';
 import { Form, FormActions } from '../form/Form';
-import { Field, FieldLabel, FieldError, Switch, Checkbox, Textarea, Select } from '../form/Fields';
+import { Field, FieldLabel, FieldError, Switch, Checkbox, Textarea, Select, Radio } from '../form/Fields';
+import { Flex } from '../primitives/Layout';
 
 export type DayPreferences = {
+  attending: boolean | null; // null = not selected, true = attending, false = not attending
   stayingWithYatra: boolean;
   dinnerAtHost: boolean;
   breakfastAtHost: boolean;
   lunchWithYatra: boolean;
-  physicalLimitations?: string;
-  toiletPreference?: 'indian' | 'western';
+  physicalLimitations: string | null;
+  toiletPreference: 'indian' | 'western' | null;
 };
 
 export function DailyPreferencesForm({
@@ -21,6 +23,7 @@ export function DailyPreferencesForm({
   onChange,
   onPrev,
   onNext,
+  backToRegister,
 }: {
   dateLabel: string;
   values: DayPreferences;
@@ -28,71 +31,187 @@ export function DailyPreferencesForm({
   onChange: (patch: Partial<DayPreferences>) => void;
   onPrev?: () => void;
   onNext?: () => void;
+  backToRegister: () => void;
 }) {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     onNext?.();
   };
 
+  // Parse the date to get day of the week
+  const getDayOfWeek = (dateString: string) => {
+    // Handle both DD/MM/YYYY and YYYY-MM-DD formats
+    let date: Date;
+    if (dateString.includes('/')) {
+      // DD/MM/YYYY format
+      const [day, month, year] = dateString.split('/');
+      date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    } else {
+      // YYYY-MM-DD format
+      date = new Date(dateString);
+    }
+    return date.toLocaleDateString('en-US', { weekday: 'long' });
+  };
+
   return (
     <Card>
       <Stack className="gap-4">
-        <Heading className="text-lg">Preferences for {dateLabel}</Heading>
+        <Heading className="text-lg">Preferences for {dateLabel} ({getDayOfWeek(dateLabel)})</Heading>
         <Form onSubmit={handleSubmit}>
-          <Grid className="grid-cols-1 gap-4 sm:grid-cols-2">
+          <Stack className="gap-4">
             <Field>
-              <FieldLabel>Staying with yatra</FieldLabel>
-              <Switch checked={values.stayingWithYatra} onChange={(e) => onChange({ stayingWithYatra: (e.target as HTMLInputElement).checked })} />
-              <FieldError>{errors.stayingWithYatra}</FieldError>
+              <FieldLabel>Will you attend the yatra on this day?</FieldLabel>
+              <div className="space-y-2">
+                <Flex className="items-center gap-3">
+                  <Radio
+                    id="attending-yes"
+                    name="attending"
+                    checked={values.attending === true}
+                    onChange={() => onChange({ 
+                      attending: true,
+                      stayingWithYatra: false,
+                      dinnerAtHost: false,
+                      breakfastAtHost: false,
+                      lunchWithYatra: false,
+                      physicalLimitations: '',
+                      toiletPreference: null
+                    })}
+                  />
+                  <FieldLabel>Yes, I will attend</FieldLabel>
+                </Flex>
+                <Flex className="items-center gap-3">
+                  <Radio
+                    id="attending-no"
+                    name="attending"
+                    checked={values.attending === false}
+                    onChange={() => onChange({ 
+                      attending: false,
+                      stayingWithYatra: false,
+                      dinnerAtHost: false,
+                      breakfastAtHost: false,
+                      lunchWithYatra: false,
+                      physicalLimitations: '',
+                      toiletPreference: null
+                    })}
+                  />
+                  <FieldLabel>No, I will not attend</FieldLabel>
+                </Flex>
+              </div>
+              <FieldError>{errors.attending}</FieldError>
             </Field>
 
-            <Field>
-              <FieldLabel>Dinner at host</FieldLabel>
-              <Checkbox checked={values.dinnerAtHost} onChange={(e) => onChange({ dinnerAtHost: (e.target as HTMLInputElement).checked })} />
-              <FieldError>{errors.dinnerAtHost}</FieldError>
-            </Field>
+            {values.attending === true && (
+              <>
+                <Field>
+                  <FieldLabel>Staying with Local Host</FieldLabel>
+                  <Switch checked={values.stayingWithYatra} onChange={(e) => {
+                    const checked = (e.target as HTMLInputElement).checked;
+                    if (!checked) {
+                      // If not staying with yatra, uncheck breakfast and dinner
+                      onChange({ 
+                        stayingWithYatra: checked,
+                        breakfastAtHost: false,
+                        dinnerAtHost: false
+                      });
+                    } else {
+                      onChange({ stayingWithYatra: checked });
+                    }
+                  }} />
+                  <FieldError>{errors.stayingWithYatra}</FieldError>
+                  {!values.stayingWithYatra ? (
+                    <Text className="text-sm text-yellow-700 dark:text-yellow-300 text-left pb-4">
+                      Note: Since you are not staying with the local host, only lunch is available.
+                    </Text>
+                    ) : null
+                  }
+                </Field>
 
-            <Field>
-              <FieldLabel>Breakfast at host</FieldLabel>
-              <Checkbox checked={values.breakfastAtHost} onChange={(e) => onChange({ breakfastAtHost: (e.target as HTMLInputElement).checked })} />
-              <FieldError>{errors.breakfastAtHost}</FieldError>
-            </Field>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  
+                  <Field>
+                    <Flex className="items-center gap-3">
+                      <Checkbox 
+                        checked={values.lunchWithYatra} 
+                        onChange={(e) => onChange({ lunchWithYatra: (e.target as HTMLInputElement).checked })} 
+                      />
+                      <FieldLabel>Lunch with yatra</FieldLabel>
+                    </Flex>
+                    <FieldError>{errors.lunchWithYatra}</FieldError>
+                  </Field>
+                  
+                  <Field>
+                    <Flex className="items-center gap-3">
+                      <Checkbox 
+                        checked={values.dinnerAtHost} 
+                        disabled={!values.stayingWithYatra}
+                        onChange={(e) => onChange({ dinnerAtHost: (e.target as HTMLInputElement).checked })} 
+                      />
+                      <FieldLabel>Dinner at host</FieldLabel>
+                    </Flex>
+                    <FieldError>{errors.dinnerAtHost}</FieldError>
+                  </Field>
 
-            <Field>
-              <FieldLabel>Lunch with yatra</FieldLabel>
-              <Checkbox checked={values.lunchWithYatra} onChange={(e) => onChange({ lunchWithYatra: (e.target as HTMLInputElement).checked })} />
-              <FieldError>{errors.lunchWithYatra}</FieldError>
-            </Field>
+                  <Field>
+                    <Flex className="items-center gap-3">
+                      <Checkbox 
+                        checked={values.breakfastAtHost} 
+                        disabled={!values.stayingWithYatra}
+                        onChange={(e) => onChange({ breakfastAtHost: (e.target as HTMLInputElement).checked })} 
+                      />
+                      <FieldLabel>Breakfast at host</FieldLabel>
+                    </Flex>
+                    <FieldError>{errors.breakfastAtHost}</FieldError>
+                  </Field>
 
-            <Field>
-              <FieldLabel>Physical limitations</FieldLabel>
-              <Textarea value={values.physicalLimitations ?? ''} onChange={(e) => onChange({ physicalLimitations: (e.target as HTMLTextAreaElement).value })} />
-              <FieldError>{errors.physicalLimitations}</FieldError>
-            </Field>
+                </div>
 
-            <Field>
-              <FieldLabel>Toilet preference</FieldLabel>
-              <Select value={values.toiletPreference ?? ''} onChange={(e) => onChange({ toiletPreference: (e.target as HTMLSelectElement).value as DayPreferences['toiletPreference'] })}>
-                <option value="">Select</option>
-                <option value="indian">Indian</option>
-                <option value="western">Western</option>
-              </Select>
-              <FieldError>{errors.toiletPreference}</FieldError>
-            </Field>
-          </Grid>
+                {values.stayingWithYatra && (
+                  <>
+                    <Field className="pt-4">
+                      <FieldLabel>Physical limitations</FieldLabel>
+                      <Textarea value={values.physicalLimitations ?? ''} onChange={(e) => onChange({ physicalLimitations: (e.target as HTMLTextAreaElement).value })} />
+                      <FieldError>{errors.physicalLimitations}</FieldError>
+                    </Field>
 
-          {!values.stayingWithYatra ? (
-            <Text className="text-sm text-amber-700 dark:text-amber-300">Warning: Since you are not staying with the yatra, some facilities may not be available.</Text>
-          ) : null}
+                    <Field>
+                      <FieldLabel>Toilet preference</FieldLabel>
+                      <Select value={values.toiletPreference ?? ''} onChange={(e) => onChange({ toiletPreference: (e.target as HTMLSelectElement).value as DayPreferences['toiletPreference'] })}>
+                        <option value="">Select</option>
+                        <option value="indian">Indian</option>
+                        <option value="western">Western</option>
+                      </Select>
+                      <FieldError>{errors.toiletPreference}</FieldError>
+                    </Field>
+                  </>
+                )}
+              </>
+            )}
 
-          <FormActions>
-            {onPrev ? (
-              <Button type="button" variant="secondary" onClick={onPrev}>Previous</Button>
-            ) : null}
-            {onNext ? (
-              <Button type="submit">Next</Button>
-            ) : null}
-          </FormActions>
+            {values.attending === false && (
+              <Text className="text-sm text-gray-600 dark:text-gray-400 text-center py-4">
+                You have indicated that you will not attend on this day. No further preferences are needed.
+              </Text>
+            )}
+
+            <FormActions>
+              <Button type="button" variant="secondary" onClick={backToRegister}>
+                Back to Register
+              </Button>
+              {onPrev && (
+                <Button type="button" variant="secondary" onClick={onPrev}>
+                  Previous
+                </Button>
+              )}
+              {onNext ? (
+                <Button 
+                  type="submit" 
+                  disabled={values.attending === null}
+                >
+                  Next
+                </Button>
+              ) : null}
+            </FormActions>
+          </Stack>
         </Form>
       </Stack>
     </Card>

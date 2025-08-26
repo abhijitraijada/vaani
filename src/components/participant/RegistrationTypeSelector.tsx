@@ -25,20 +25,22 @@ export function RegistrationTypeSelector({
       <Stack className="gap-4">
         <Heading className="text-lg">{title}</Heading>
         <Text className="text-sm text-gray-600 dark:text-gray-400">{hint}</Text>
-        <ButtonGroup className="w-48">
-          <Button
-            variant={value === 'individual' ? 'primary' : 'secondary'}
-            onClick={() => onChange('individual')}
-          >
-            Individual
-          </Button>
-          <Button
-            variant={value === 'group' ? 'primary' : 'secondary'}
-            onClick={() => onChange('group')}
-          >
-            Group
-          </Button>
-        </ButtonGroup>
+        <Flex className="justify-center">
+          <ButtonGroup>
+            <Button
+              variant={value === 'individual' ? 'primary' : 'secondary'}
+              onClick={() => onChange('individual')}
+            >
+              Individual
+            </Button>
+            <Button
+              variant={value === 'group' ? 'primary' : 'secondary'}
+              onClick={() => onChange('group')}
+            >
+              Group
+            </Button>
+          </ButtonGroup>
+        </Flex>
         {onNext ? (
           <Flex className="justify-end">
             <Button onClick={onNext}>{nextLabel}</Button>

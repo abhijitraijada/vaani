@@ -36,7 +36,8 @@ export default function Home() {
     
     const registrationStartDate = new Date('2025-09-01');
     
-    if (currentDate >= registrationStartDate) {
+    // if (currentDate >= registrationStartDate) {
+    if (registrationStartDate) {
       navigate('/participant/register');
     } else {
       setShowModal(true);

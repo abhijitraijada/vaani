@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../store';
 import { setDayPreferences } from '../../store/registrationSlice';
-import { Container, Section, Stack, Card, Flex } from '../../components/primitives/Layout';
+import { Container, Section, Stack, Card} from '../../components/primitives/Layout';
 import { RegistrationStepper } from '../../components/participant/RegistrationStepper';
 import { DailyPreferencesForm } from '../../components/participant/DailyPreferencesForm';
 import { Button } from '../../components/primitives/Button';
@@ -11,6 +11,16 @@ import { useNavigate } from 'react-router-dom';
 
 const dates = ['2025-10-31', '2025-11-01', '2025-11-02', '2025-11-03'];
 
+// Function to format date from YYYY-MM-DD to DD/MM/YYYY
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+};
+
 export default function ScreenPreferences() {
   const nav = useNavigate();
   const dispatch = useAppDispatch();
@@ -18,12 +28,13 @@ export default function ScreenPreferences() {
   const [step, setStep] = useState(0);
   const currentDate = dates[step];
   const dayPrefs = draft.preferencesByDate[currentDate] ?? {
-    stayingWithYatra: true,
-    dinnerAtHost: true,
-    breakfastAtHost: true,
-    lunchWithYatra: true,
+    attending: null,
+    stayingWithYatra: false,
+    dinnerAtHost: false,
+    breakfastAtHost: false,
+    lunchWithYatra: false,
     physicalLimitations: '',
-    toiletPreference: undefined,
+    toiletPreference: null,
   };
 
   const next = () => setStep((s) => Math.min(s + 1, dates.length - 1));
@@ -49,20 +60,15 @@ export default function ScreenPreferences() {
           </div>
 
           <div className="mx-auto mt-6 max-w-3xl space-y-6">
-            <RegistrationStepper steps={dates.map((d) => d)} current={step} />
+            <RegistrationStepper steps={dates.map((d) => formatDate(d))} current={step} />
             <DailyPreferencesForm
-              dateLabel={currentDate}
+              dateLabel={formatDate(currentDate)}
               values={dayPrefs}
               onChange={(patch) => dispatch(setDayPreferences({ date: currentDate, prefs: patch }))}
               onPrev={step === 0 ? undefined : prev}
               onNext={step < dates.length - 1 ? next : done}
+              backToRegister={() => nav('/participant/register')}
             />
-            <Card>
-              <Flex className="justify-between">
-                <Button variant="secondary" onClick={() => nav('/participant/register')}>Back</Button>
-                <Button onClick={step < dates.length - 1 ? next : done}>{step < dates.length - 1 ? 'Next' : 'Continue'}</Button>
-              </Flex>
-            </Card>
           </div>
         </Container>
       </Section>

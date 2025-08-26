@@ -72,12 +72,13 @@ const registrationSlice = createSlice({
     setDayPreferences(state, action: PayloadAction<{ date: string; prefs: Partial<DayPreferences> }>) {
       const { date, prefs } = action.payload;
       const prev = state.preferencesByDate[date] ?? {
+        attending: null,
         stayingWithYatra: true,
         dinnerAtHost: true,
         breakfastAtHost: true,
         lunchWithYatra: true,
         physicalLimitations: '',
-        toiletPreference: undefined,
+        toiletPreference: null,
       } as DayPreferences;
       state.preferencesByDate[date] = { ...prev, ...prefs };
     },

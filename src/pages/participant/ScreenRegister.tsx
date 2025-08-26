@@ -18,7 +18,7 @@ export default function ScreenRegister() {
   return (
     <>
       <Header
-        left={<Text className="text-base font-semibold tracking-tight">Vasundhara ni Vaani</Text>}
+        left={<Text className="text-4xl font-semibold tracking-tight">Vasundhara ni Vaani</Text>}
         right={<Button variant="secondary" onClick={() => nav('/')}>Home</Button>}
       />
 

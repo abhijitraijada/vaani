@@ -3,7 +3,7 @@ import { Card, Stack, Grid } from '../primitives/Layout';
 import { Heading, Text } from '../primitives/Typography';
 import { Button } from '../primitives/Button';
 import { Form, FormActions } from '../form/Form';
-import { Field, FieldLabel, FieldError, TextInput, EmailInput, PhoneInput, NumberInput, Select } from '../form/Fields';
+import { Field, FieldLabel, FieldError, TextInput, EmailInput, PhoneInput, NumberInput } from '../form/Fields';
 
 export type PersonalDetailsValues = {
   name: string;
@@ -96,7 +96,7 @@ export function PersonalDetailsForm({
               <FieldError>{errors.age}</FieldError>
             </Field>
 
-            <Field>
+            {/* <Field>
               <FieldLabel>Preferred floor</FieldLabel>
               <Select
                 value={values.floor}
@@ -110,7 +110,7 @@ export function PersonalDetailsForm({
                 <option value="higher">Higher</option>
               </Select>
               <FieldError>{errors.floor}</FieldError>
-            </Field>
+            </Field> */}
 
             <Field>
               <FieldLabel>Preferred language</FieldLabel>

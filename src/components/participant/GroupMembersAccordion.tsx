@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Card, Stack, Flex, Grid } from '../primitives/Layout';
 import { Heading, Text } from '../primitives/Typography';
 import { Button } from '../primitives/Button';
-import { Field, FieldLabel, TextInput, EmailInput, PhoneInput, NumberInput, Select } from '../form/Fields';
+import { Field, FieldLabel, TextInput, EmailInput, PhoneInput, NumberInput } from '../form/Fields';
 
 export type GroupMember = {
   name: string;
@@ -69,7 +69,7 @@ export function GroupMembersAccordion({
                         <FieldLabel>Age</FieldLabel>
                         <NumberInput value={m.age as number | undefined} onChange={(e) => onChange(idx, { age: Number((e.target as HTMLInputElement).value) })} />
                       </Field>
-                      <Field>
+                      {/* <Field>
                         <FieldLabel>Preferred floor</FieldLabel>
                         <Select value={m.floor ?? ''} onChange={(e) => onChange(idx, { floor: (e.target as HTMLSelectElement).value as GroupMember['floor'] })}>
                           <option value="">Select</option>
@@ -78,14 +78,14 @@ export function GroupMembersAccordion({
                           <option value="second">Second</option>
                           <option value="higher">Higher</option>
                         </Select>
-                      </Field>
+                      </Field> */}
                       <Field>
                         <FieldLabel>Preferred language</FieldLabel>
                         <TextInput value={m.language ?? ''} onChange={(e) => onChange(idx, { language: (e.target as HTMLInputElement).value })} />
                       </Field>
                     </Grid>
                     <Flex className="justify-end gap-2">
-                      <Button variant="destructive" onClick={() => onRemove(idx)}>Remove</Button>
+                      <Button variant="destructive" onClick={() => onRemove(idx)}>Delete</Button>
                     </Flex>
                   </Stack>
                 </Card>
