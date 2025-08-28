@@ -9,6 +9,7 @@ type LoadingContextValue = {
 const LoadingContext = createContext<LoadingContextValue | undefined>(undefined);
 
 export function LoadingProvider({ children }: PropsWithChildren) {
+  // console.log('LoadingProvider render');
   const [visible, setVisible] = useState(false);
   const value = useMemo<LoadingContextValue>(() => ({ show: () => setVisible(true), hide: () => setVisible(false) }), []);
   return (

@@ -3,41 +3,25 @@ import { Container, Section } from '../components/primitives/Layout';
 import { Text } from '../components/primitives/Typography';
 import { Button } from '../components/primitives/Button';
 import { Footer } from '../components/navigation/AppShell';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+
+import { useAppSelector } from '../store';
+import { shallowEqual } from 'react-redux';
 
 export default function Home() { 
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
-  const [currentDate, setCurrentDate] = useState<Date | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchCurrentDate = async () => {
-      try {
-        // Fetch current date from IST timezone (GMT+5:30)
-        const response = await fetch('https://worldtimeapi.org/api/timezone/Asia/Kolkata');
-        const data = await response.json();
-        const istDate = new Date(data.datetime);
-        setCurrentDate(istDate);
-      } catch (error) {
-        console.error('Failed to fetch IST date, falling back to system date:', error);
-        // Fallback to system date if internet fetch fails
-        setCurrentDate(new Date());
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchCurrentDate();
-  }, []);
+  const [currentDate] = useState<Date>(new Date());
+  const { activeEvent } = useAppSelector(state => ({
+    activeEvent: state.events.activeEvent
+  }), shallowEqual);
 
   const handleRegisterClick = () => {
-    if (!currentDate) return; // Don't proceed if date hasn't loaded yet
+    if (!activeEvent) return;
     
-    const registrationStartDate = new Date('2025-09-01');
+    const registrationStartDate = new Date(activeEvent.registration_start_date);
     
-    // if (currentDate >= registrationStartDate) {
-    if (registrationStartDate) {
+    if (currentDate >= registrationStartDate) {
       navigate('/participant/register');
     } else {
       setShowModal(true);
@@ -54,20 +38,19 @@ export default function Home() {
           <div className="pointer-events-none absolute -right-20 top-40 h-80 w-80 rounded-full bg-pink-300/30 blur-3xl dark:bg-pink-600/20" />
           <Container>
             <div className="mx-auto max-w-5xl py-14 text-center sm:py-20">
-              <div className="mb-3 text-xs font-semibold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Nachiketa Trust</div>
+              <div className="mb-3 text-xs font-semibold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">{activeEvent?.ngo}</div>
               <h1 className="mx-auto max-w-4xl text-4xl font-bold leading-tight tracking-tight text-gray-900 sm:text-5xl dark:text-gray-100">
-                Vasundhara ni Vaani - 2025
+                {activeEvent?.event_name}
               </h1>
               <p className="mx-auto mt-4 max-w-3xl text-base text-gray-600 sm:text-lg dark:text-gray-400">
-                Amidst grasslands of Bhal, Gujarat.
+                {activeEvent?.description}
               </p>
               <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
                 <Button 
                   className="h-12 px-6 text-base" 
                   onClick={handleRegisterClick}
-                  disabled={isLoading}
                 >
-                  {isLoading ? 'Loading...' : 'Register now'}
+                  Register now
                 </Button>
                 <Button variant="secondary" className="h-12 px-6 text-base" onClick={() => window.open('https://www.youtube.com/@vasundharavani3048', '_blank')}>Explore highlights</Button>
                 <Button variant="secondary" className="h-12 px-6 text-base" onClick={() => navigate('/contact')}>Contact Us</Button>
@@ -376,7 +359,7 @@ export default function Home() {
                 Registration Not Open Yet
               </h3>
               <p className="text-gray-600 dark:text-gray-400 mb-6">
-                Registration for Vasundhara ni Vaani 2025 will open on September 1st, 2025.
+                Registration for {activeEvent?.event_name} will open on {new Date(activeEvent?.registration_start_date || '').toLocaleDateString()}.
               </p>
               <Button 
                 onClick={() => setShowModal(false)}

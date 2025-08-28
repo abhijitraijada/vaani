@@ -15,7 +15,7 @@ export function Heading({ className, children, ...props }: BaseProps) {
 
 export function Text({ className, children, ...props }: BaseProps) {
   return (
-    <p className={cn('text-gray-700 dark:text-gray-300', className)} {...props}>
+    <p className={cn(className, 'text-gray-700 dark:text-gray-300')} {...props}>
       {children}
     </p>
   );

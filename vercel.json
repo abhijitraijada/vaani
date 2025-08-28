@@ -43,5 +43,8 @@
       "destination": "/",
       "permanent": true
     }
-  ]
+  ],
+  "env": {
+    "VITE_API_BASE_URL": "https://prac-pad-agent-dccc5b6927b7.herokuapp.com/api"
+  }
 }

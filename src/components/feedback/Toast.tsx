@@ -45,6 +45,7 @@ type ToastContextValue = {
 const ToastContext = createContext<ToastContextValue | undefined>(undefined);
 
 export function ToastProvider({ children, position: initialPosition = 'top-right' }: PropsWithChildren<{ position?: ToastPosition }>) {
+  // console.log('ToastProvider render');
   const [toasts, setToasts] = useState<ToastRecord[]>([]);
   const [position, setPosition] = useState<ToastPosition>(initialPosition);
   const idSeq = useRef(0);

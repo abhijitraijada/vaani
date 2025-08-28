@@ -1,6 +1,4 @@
-export * from './RegistrationTypeSelector';
-export * from './PersonalDetailsForm';
-export * from './GroupMembersAccordion';
+export * from './ParticipantRegistrationForm';
 export * from './TransportTypeSelector';
 export * from './VehicleDetailsFields';
 export * from './DailyPreferencesForm';

@@ -5,11 +5,10 @@ import { Container, Section, Stack, Card} from '../../components/primitives/Layo
 import { RegistrationStepper } from '../../components/participant/RegistrationStepper';
 import { DailyPreferencesForm } from '../../components/participant/DailyPreferencesForm';
 import { Button } from '../../components/primitives/Button';
-import { Heading, Text, Link as ALink } from '../../components/primitives/Typography';
-import { Header, Footer } from '../../components/navigation/AppShell';
+import { Heading, Text } from '../../components/primitives/Typography';
+import { Header } from '../../components/navigation/AppShell';
+import { AppFooter } from '../../components/shared/AppFooter';
 import { useNavigate } from 'react-router-dom';
-
-const dates = ['2025-10-31', '2025-11-01', '2025-11-02', '2025-11-03'];
 
 // Function to format date from YYYY-MM-DD to DD/MM/YYYY
 const formatDate = (dateString: string) => {
@@ -25,8 +24,16 @@ export default function ScreenPreferences() {
   const nav = useNavigate();
   const dispatch = useAppDispatch();
   const draft = useAppSelector((s) => s.registrationDraft);
+  const { activeEvent } = useAppSelector(state => state.events);
+  
+  // Sort event days chronologically
+  // We know activeEvent is not null because of ProtectedParticipantRoute
+  const eventDays = [...activeEvent!.event_days].sort((a, b) => 
+    new Date(a.event_date).getTime() - new Date(b.event_date).getTime()
+  ) || [];
   const [step, setStep] = useState(0);
-  const currentDate = dates[step];
+  const currentDay = eventDays[step];
+  const currentDate = currentDay?.event_date;
   const dayPrefs = draft.preferencesByDate[currentDate] ?? {
     attending: null,
     stayingWithYatra: false,
@@ -37,14 +44,15 @@ export default function ScreenPreferences() {
     toiletPreference: null,
   };
 
-  const next = () => setStep((s) => Math.min(s + 1, dates.length - 1));
+  const next = () => setStep((s) => Math.min(s + 1, eventDays.length - 1));
   const prev = () => setStep((s) => Math.max(s - 1, 0));
   const done = () => nav('/participant/vehicle');
+
 
   return (
     <>
       <Header
-        left={<Text className="text-base font-semibold tracking-tight">Vasundhara ni Vaani</Text>}
+        left={<Text className="font-semibold tracking-tight text-4xl">Vasundhara ni Vaani</Text>}
         right={<Button variant="secondary" onClick={() => nav('/')}>Home</Button>}
       />
       <Section className="pt-0">
@@ -60,25 +68,29 @@ export default function ScreenPreferences() {
           </div>
 
           <div className="mx-auto mt-6 max-w-3xl space-y-6">
-            <RegistrationStepper steps={dates.map((d) => formatDate(d))} current={step} />
+            <RegistrationStepper 
+              steps={eventDays.map(day => `${formatDate(day.event_date)}`)} 
+              current={step} 
+            />
             <DailyPreferencesForm
-              dateLabel={formatDate(currentDate)}
+              dateLabel={currentDate ? `${formatDate(currentDate)}` : ''}
+              dayConfig={{
+                breakfast_provided: currentDay.breakfast_provided,
+                lunch_provided: currentDay.lunch_provided,
+                dinner_provided: currentDay.dinner_provided,
+                daily_notes: currentDay.daily_notes,
+                location_name: currentDay.location_name,
+              }}
               values={dayPrefs}
               onChange={(patch) => dispatch(setDayPreferences({ date: currentDate, prefs: patch }))}
               onPrev={step === 0 ? undefined : prev}
-              onNext={step < dates.length - 1 ? next : done}
+              onNext={step < eventDays.length - 1 ? next : done}
               backToRegister={() => nav('/participant/register')}
             />
           </div>
         </Container>
       </Section>
-      <Footer>
-        <Stack className="gap-2 text-center">
-          <Text className="text-sm">Nachiketa Trust • Organizers of Vasundhara ni Vaani</Text>
-          <Text className="text-sm">Phone: <ALink href="tel:+919876543213">+91 98765 43213</ALink> · Email: <ALink href="mailto:org1@example.com">org1@example.com</ALink></Text>
-          <Text className="text-xs text-gray-500 dark:text-gray-400">© {new Date().getFullYear()} Vasundhara ni Vaani</Text>
-        </Stack>
-      </Footer>
+      <AppFooter />
     </>
   );
 }

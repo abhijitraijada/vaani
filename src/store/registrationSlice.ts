@@ -1,37 +1,29 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { RegistrationType } from '../components/participant/RegistrationTypeSelector';
-import type { PersonalDetailsValues } from '../components/participant/PersonalDetailsForm';
-import type { GroupMember } from '../components/participant/GroupMembersAccordion';
 import type { TransportType } from '../components/participant/TransportTypeSelector';
 import type { VehicleDetails } from '../components/participant/VehicleDetailsFields';
 import type { DayPreferences } from '../components/participant/DailyPreferencesForm';
+import type { Participant } from '../components/participant/ParticipantRegistrationForm';
 
 export type RegistrationDraftState = {
-  registrationType: RegistrationType;
-  personal: PersonalDetailsValues;
-  group: GroupMember[];
+  participants: Participant[];
   transportType: TransportType;
   vehicle: VehicleDetails;
   preferencesByDate: Record<string, DayPreferences>;
 };
 
 const initialState: RegistrationDraftState = {
-  registrationType: 'individual',
-  personal: {
+  participants: [{
     name: '',
     email: '',
     phone: '',
     city: '',
-    age: undefined,
-    floor: undefined,
+    age: null as number | null,
+    gender: 'M',
     language: '',
-  },
-  group: [],
-  transportType: 'public',
+  }],
+  transportType: null,
   vehicle: {
-    vehicleMake: '',
-    vehicleNumber: '',
     hasEmptySeats: false,
     availableSeats: undefined,
   },
@@ -42,22 +34,28 @@ const registrationSlice = createSlice({
   name: 'registrationDraft',
   initialState,
   reducers: {
-    setRegistrationType(state, action: PayloadAction<RegistrationType>) {
-      state.registrationType = action.payload;
+    addParticipant(state) {
+      state.participants.push({
+            name: '',
+    email: '',
+    phone: '',
+    city: '',
+    age: null as number | null,
+    gender: 'M',
+    language: '',
+      });
     },
-    patchPersonal(state, action: PayloadAction<Partial<PersonalDetailsValues>>) {
-      state.personal = { ...state.personal, ...action.payload };
+    removeParticipant(state, action: PayloadAction<number>) {
+      if (state.participants.length > 1) {
+        state.participants.splice(action.payload, 1);
+      }
     },
-    addGroupMember(state) {
-      state.group.push({ name: '', email: '', phone: '' });
-    },
-    removeGroupMember(state, action: PayloadAction<number>) {
-      state.group.splice(action.payload, 1);
-    },
-    patchGroupMember(state, action: PayloadAction<{ index: number; patch: Partial<GroupMember> }>) {
+    updateParticipant(state, action: PayloadAction<{ index: number; patch: Partial<Participant> }>) {
       const { index, patch } = action.payload;
-      const current = state.group[index];
-      if (current) state.group[index] = { ...current, ...patch };
+      const current = state.participants[index];
+      if (current) {
+        state.participants[index] = { ...current, ...patch };
+      }
     },
     setTransportType(state, action: PayloadAction<TransportType>) {
       state.transportType = action.payload;
@@ -89,11 +87,9 @@ const registrationSlice = createSlice({
 });
 
 export const {
-  setRegistrationType,
-  patchPersonal,
-  addGroupMember,
-  removeGroupMember,
-  patchGroupMember,
+  addParticipant,
+  removeParticipant,
+  updateParticipant,
   setTransportType,
   patchVehicle,
   setDayPreferences,
@@ -101,5 +97,3 @@ export const {
 } = registrationSlice.actions;
 
 export default registrationSlice.reducer;
-
-

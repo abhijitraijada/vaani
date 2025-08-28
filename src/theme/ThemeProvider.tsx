@@ -19,6 +19,7 @@ function computeIsDark(mode: ThemeMode, mql: MediaQueryList): boolean {
 }
 
 export function ThemeProvider({ children }: PropsWithChildren) {
+  // console.log('ThemeProvider render');
   const [mode, setMode] = useState<ThemeMode>(() => {
     const stored = typeof window !== 'undefined' ? (localStorage.getItem(STORAGE_KEY) as ThemeMode | null) : null;
     return stored ?? 'auto';

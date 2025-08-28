@@ -1,11 +1,10 @@
 import { Card, Stack, Grid } from '../primitives/Layout';
-import { Heading } from '../primitives/Typography';
-import { Field, FieldLabel, FieldError, TextInput, NumberInput, Checkbox } from '../form/Fields';
+import { Heading, Text } from '../primitives/Typography';
+import { Field, FieldLabel, NumberInput } from '../form/Fields';
+import { Switch } from '../primitives/Switch';
 
 export type VehicleDetails = {
-  vehicleMake?: string;
-  vehicleNumber?: string;
-  hasEmptySeats?: boolean;
+  hasEmptySeats: boolean;
   availableSeats?: number;
 };
 
@@ -13,41 +12,56 @@ export function VehicleDetailsFields({
   values,
   errors = {},
   onChange,
+  onBlur,
 }: {
   values: VehicleDetails;
   errors?: Partial<Record<keyof VehicleDetails, string>>;
   onChange: (patch: Partial<VehicleDetails>) => void;
+  onBlur?: (field: keyof VehicleDetails) => void;
 }) {
+  const handleToggleChange = (checked: boolean) => {
+    onChange({ hasEmptySeats: checked });
+    if (!checked) {
+      onChange({ availableSeats: undefined });
+    }
+    onBlur?.('hasEmptySeats');
+  };
+
   return (
     <Card>
       <Stack className="gap-4">
         <Heading className="text-lg">Private vehicle details</Heading>
-        <Grid className="grid-cols-1 gap-4 sm:grid-cols-2">
+        <Grid className="grid-cols-1 gap-4">
           <Field>
-            <FieldLabel>Vehicle make/model</FieldLabel>
-            <TextInput value={values.vehicleMake ?? ''} onChange={(e) => onChange({ vehicleMake: (e.target as HTMLInputElement).value })} />
-            <FieldError>{errors.vehicleMake}</FieldError>
+            <div className="flex items-center justify-between">
+              <FieldLabel>Share empty seats</FieldLabel>
+              <Switch
+                checked={values.hasEmptySeats}
+                onCheckedChange={handleToggleChange}
+              />
+            </div>
+            <Text className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              If enabled, you agree to share your empty seats with other participants
+            </Text>
           </Field>
-          <Field>
-            <FieldLabel>Vehicle number</FieldLabel>
-            <TextInput value={values.vehicleNumber ?? ''} onChange={(e) => onChange({ vehicleNumber: (e.target as HTMLInputElement).value })} />
-            <FieldError>{errors.vehicleNumber}</FieldError>
-          </Field>
-          <Field>
-            <label className="flex items-center gap-2">
-              <Checkbox checked={!!values.hasEmptySeats} onChange={(e) => onChange({ hasEmptySeats: (e.target as HTMLInputElement).checked })} />
-              <span className="text-sm">Has empty seats to share</span>
-            </label>
-          </Field>
-          <Field>
-            <FieldLabel>Available seats</FieldLabel>
-            <NumberInput value={values.availableSeats as number | undefined} onChange={(e) => onChange({ availableSeats: Number((e.target as HTMLInputElement).value) })} />
-            <FieldError>{errors.availableSeats}</FieldError>
-          </Field>
+          {values.hasEmptySeats && (
+            <Field>
+              <FieldLabel>Available seats</FieldLabel>
+              <NumberInput 
+                value={values.availableSeats} 
+                onChange={(e) => onChange({ availableSeats: Number(e.target.value) })}
+                onBlur={() => onBlur?.('availableSeats')}
+                placeholder="Number of seats available"
+                min={1}
+                required
+              />
+              {errors.availableSeats && (
+                <Text className="text-sm text-red-500 dark:text-red-500 mt-1">{errors.availableSeats}</Text>
+              )}
+            </Field>
+          )}
         </Grid>
       </Stack>
     </Card>
   );
 }
-
-

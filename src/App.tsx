@@ -6,20 +6,27 @@ import ContactUs from './pages/ContactUs'
 import ScreenRegister from './pages/participant/ScreenRegister'
 import ScreenPreferences from './pages/participant/ScreenPreferences'
 import ScreenVehicle from './pages/participant/ScreenVehicle'
+import { HealthProvider } from './providers/HealthProvider'
+import { EventProvider } from './providers/EventProvider'
+import { ProtectedParticipantRoute } from './components/shared/ProtectedParticipantRoute'
 
 function App() {
-
+  // console.log('App render');
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home/>}/>
-        <Route path="/components" element={<ComponentShowcase />} />
-        <Route path="/contact" element={<ContactUs />} />
-        <Route path="/participant/register" element={<ScreenRegister />} />
-        <Route path="/participant/preferences" element={<ScreenPreferences />} />
-        <Route path="/participant/vehicle" element={<ScreenVehicle />} />
-      </Routes>
-    </BrowserRouter>
+    <HealthProvider>
+      <EventProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home/>}/>
+          <Route path="/components" element={<ComponentShowcase />} />
+          <Route path="/contact" element={<ContactUs />} />
+          <Route path="/participant/register" element={<ProtectedParticipantRoute><ScreenRegister /></ProtectedParticipantRoute>} />
+          <Route path="/participant/preferences" element={<ProtectedParticipantRoute><ScreenPreferences /></ProtectedParticipantRoute>} />
+          <Route path="/participant/vehicle" element={<ProtectedParticipantRoute><ScreenVehicle /></ProtectedParticipantRoute>} />
+        </Routes>
+      </BrowserRouter>
+      </EventProvider>
+    </HealthProvider>
   )
 }
 

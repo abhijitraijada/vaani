@@ -1,12 +1,11 @@
 import { useAppDispatch, useAppSelector } from '../../store';
-import { setRegistrationType, patchPersonal, addGroupMember, removeGroupMember, patchGroupMember } from '../../store/registrationSlice';
-import { Container, Section, Stack, Card } from '../../components/primitives/Layout';
-import { RegistrationTypeSelector } from '../../components/participant/RegistrationTypeSelector';
-import { PersonalDetailsForm } from '../../components/participant/PersonalDetailsForm';
-import { GroupMembersAccordion } from '../../components/participant/GroupMembersAccordion';
+import { addParticipant, removeParticipant, updateParticipant } from '../../store/registrationSlice';
+import { Container, Section, Card, Stack } from '../../components/primitives/Layout';
+import { Heading, Text } from '../../components/primitives/Typography';
 import { RegistrationStepper } from '../../components/participant/RegistrationStepper';
-import { Heading, Text, Link as ALink } from '../../components/primitives/Typography';
-import { Header, Footer } from '../../components/navigation/AppShell';
+import { ParticipantRegistrationForm } from '../../components/participant/ParticipantRegistrationForm';
+import { Header } from '../../components/navigation/AppShell';
+import { AppFooter } from '../../components/shared/AppFooter';
 import { Button } from '../../components/primitives/Button';
 import { useNavigate } from 'react-router-dom';
 
@@ -18,7 +17,7 @@ export default function ScreenRegister() {
   return (
     <>
       <Header
-        left={<Text className="text-4xl font-semibold tracking-tight">Vasundhara ni Vaani</Text>}
+        left={<Text className="font-semibold tracking-tight text-4xl">Vasundhara ni Vaani</Text>}
         right={<Button variant="secondary" onClick={() => nav('/')}>Home</Button>}
       />
 
@@ -27,46 +26,30 @@ export default function ScreenRegister() {
           <div className="mx-auto max-w-3xl">
             <Card>
               <Stack className="gap-2 text-center">
-                <Heading className="text-2xl">Register for the Yatra</Heading>
-                <Text className="text-sm text-gray-600 dark:text-gray-400">Step 1 · Choose type and share your personal details.</Text>
-                <div className="mt-2 flex justify-center"><RegistrationStepper steps={["Register","Preferences","Vehicle"]} current={0} /></div>
+                <Heading className="text-2xl">Participant Registration</Heading>
+                <Text className="text-sm text-gray-600 dark:text-gray-400">Step 1 · Enter your details and add group members if any.</Text>
+                <Text className="text-sm text-blue-600 dark:text-blue-600 mt-2">
+                  Note: Registration is not required if you only wish to attend the Vaani program and are arranging your own meals and accommodation.
+                </Text>
+                <div className="mt-2 flex justify-center">
+                  <RegistrationStepper steps={["Register","Preferences","Vehicle"]} current={0} />
+                </div>
               </Stack>
             </Card>
           </div>
 
-          <div className="mx-auto mt-6 max-w-3xl space-y-6">
-            <RegistrationTypeSelector
-              value={draft.registrationType}
-              onChange={(t) => dispatch(setRegistrationType(t))}
+          <div className="mx-auto mt-6 max-w-3xl">
+            <ParticipantRegistrationForm
+              participants={draft.participants}
+              onAdd={() => dispatch(addParticipant())}
+              onRemove={(i) => dispatch(removeParticipant(i))}
+              onChange={(i, patch) => dispatch(updateParticipant({ index: i, patch }))}
+              onNext={() => nav('/participant/preferences')}
             />
-
-            <PersonalDetailsForm
-              values={draft.personal}
-              onChange={(p) => dispatch(patchPersonal(p))}
-              onSubmit={() => nav('/participant/preferences')}
-            />
-
-            {draft.registrationType === 'group' ? (
-              <GroupMembersAccordion
-                members={draft.group}
-                onAdd={() => dispatch(addGroupMember())}
-                onRemove={(i) => dispatch(removeGroupMember(i))}
-                onChange={(i, patch) => dispatch(patchGroupMember({ index: i, patch }))}
-              />
-            ) : null}
           </div>
         </Container>
       </Section>
-
-      <Footer>
-        <Stack className="gap-2 text-center">
-          <Text className="text-sm">Nachiketa Trust • Organizers of Vasundhara ni Vaani</Text>
-          <Text className="text-sm">Phone: <ALink href="tel:+919876543213">+91 98765 43213</ALink> · Email: <ALink href="mailto:org1@example.com">org1@example.com</ALink></Text>
-          <Text className="text-xs text-gray-500 dark:text-gray-400">© {new Date().getFullYear()} Vasundhara ni Vaani</Text>
-        </Stack>
-      </Footer>
+      <AppFooter />
     </>
   );
 }
-
-
