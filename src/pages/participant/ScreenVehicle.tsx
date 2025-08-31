@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../store';
-import { setTransportType, patchVehicle, resetDraft, setRegistrationResponse } from '../../store/registrationSlice';
+import { setTransportType, patchVehicle, setRegistrationResponse } from '../../store/registrationSlice';
 import { Container, Section, Stack, Card } from '../../components/primitives/Layout';
 import { TransportTypeSelector } from '../../components/participant/TransportTypeSelector';
 import { VehicleDetailsFields } from '../../components/participant/VehicleDetailsFields';

@@ -1,5 +1,4 @@
 import { Section } from '../primitives/Layout';
-import { Text } from '../primitives/Typography';
 import { Button } from '../primitives/Button';
 
 type HotelInfo = {
