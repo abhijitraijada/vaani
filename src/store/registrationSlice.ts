@@ -4,12 +4,14 @@ import type { TransportType } from '../components/participant/TransportTypeSelec
 import type { VehicleDetails } from '../components/participant/VehicleDetailsFields';
 import type { DayPreferences } from '../components/participant/DailyPreferencesForm';
 import type { Participant } from '../components/participant/ParticipantRegistrationForm';
+import type { RegistrationResponse } from '../services/endpoints/registration.types';
 
 export type RegistrationDraftState = {
   participants: Participant[];
   transportType: TransportType;
   vehicle: VehicleDetails;
   preferencesByDate: Record<string, DayPreferences>;
+  registrationResponse: RegistrationResponse | null;
 };
 
 const initialState: RegistrationDraftState = {
@@ -28,6 +30,7 @@ const initialState: RegistrationDraftState = {
     availableSeats: undefined,
   },
   preferencesByDate: {},
+  registrationResponse: null,
 };
 
 const registrationSlice = createSlice({
@@ -80,8 +83,15 @@ const registrationSlice = createSlice({
       } as DayPreferences;
       state.preferencesByDate[date] = { ...prev, ...prefs };
     },
-    resetDraft() {
-      return initialState;
+    setRegistrationResponse(state, action: PayloadAction<RegistrationResponse>) {
+      state.registrationResponse = action.payload;
+    },
+    resetDraft(state) {
+      const registrationResponse = state.registrationResponse;
+      return {
+        ...initialState,
+        registrationResponse,
+      };
     },
   },
 });
@@ -93,6 +103,7 @@ export const {
   setTransportType,
   patchVehicle,
   setDayPreferences,
+  setRegistrationResponse,
   resetDraft,
 } = registrationSlice.actions;
 

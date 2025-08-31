@@ -3,6 +3,8 @@ import ComponentShowcase from './pages/ComponentShowcase'
 import './App.css'
 import Home from './pages/Home'
 import ContactUs from './pages/ContactUs'
+import HotelInformation from './pages/HotelInformation'
+import RegistrationMembers from './pages/RegistrationMembers'
 import ScreenRegister from './pages/participant/ScreenRegister'
 import ScreenPreferences from './pages/participant/ScreenPreferences'
 import ScreenVehicle from './pages/participant/ScreenVehicle'
@@ -20,6 +22,8 @@ function App() {
           <Route path="/" element={<Home/>}/>
           <Route path="/components" element={<ComponentShowcase />} />
           <Route path="/contact" element={<ContactUs />} />
+          <Route path="/hotel-information" element={<HotelInformation />} />
+          <Route path="/registration-members" element={<RegistrationMembers />} />
           <Route path="/participant/register" element={<ProtectedParticipantRoute><ScreenRegister /></ProtectedParticipantRoute>} />
           <Route path="/participant/preferences" element={<ProtectedParticipantRoute><ScreenPreferences /></ProtectedParticipantRoute>} />
           <Route path="/participant/vehicle" element={<ProtectedParticipantRoute><ScreenVehicle /></ProtectedParticipantRoute>} />

@@ -4,6 +4,7 @@ import { Text } from '../components/primitives/Typography';
 import { Button } from '../components/primitives/Button';
 import { Footer } from '../components/navigation/AppShell';
 import { useState } from 'react';
+import HotelInformation from '../components/shared/HotelInformation';
 
 import { useAppSelector } from '../store';
 import { shallowEqual } from 'react-redux';
@@ -54,6 +55,13 @@ export default function Home() {
                 </Button>
                 <Button variant="secondary" className="h-12 px-6 text-base" onClick={() => window.open('https://www.youtube.com/@vasundharavani3048', '_blank')}>Explore highlights</Button>
                 <Button variant="secondary" className="h-12 px-6 text-base" onClick={() => navigate('/contact')}>Contact Us</Button>
+              </div>
+              <div className="mt-5">
+                <h3 className="text-lg font-semibold text-yellow-800 dark:text-yellow-200 mb-2">Important Notice</h3>
+                <p className="text-yellow-700 dark:text-yellow-300">
+                  Participants who do not want to stay as village's guests do not need to register to attend the yatra. 
+                  They can attend without registration. Please contact the hotel owners directly for accommodation arrangements.
+                </p>
               </div>
             </div>
           </Container>
@@ -330,16 +338,27 @@ export default function Home() {
           </table>
         </div>
         </Section>
+
+        {/* Hotel Information Section */}
+        <HotelInformation />
       </main>
 
       <Footer>
-        <div className="text-center">
+        <div className="text-center space-y-2">
           <Text className="text-sm">
             <div 
               onClick={() => navigate('/contact')} 
               className="text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium cursor-pointer hover:underline"
             >
               Contact Us
+            </div>
+          </Text>
+          <Text className="text-sm">
+            <div 
+              onClick={() => navigate('/hotel-information')} 
+              className="text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium cursor-pointer hover:underline"
+            >
+              Hotel Information
             </div>
           </Text>
         </div>

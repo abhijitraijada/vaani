@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../store';
-import { setTransportType, patchVehicle, resetDraft } from '../../store/registrationSlice';
+import { setTransportType, patchVehicle, resetDraft, setRegistrationResponse } from '../../store/registrationSlice';
 import { Container, Section, Stack, Card } from '../../components/primitives/Layout';
 import { TransportTypeSelector } from '../../components/participant/TransportTypeSelector';
 import { VehicleDetailsFields } from '../../components/participant/VehicleDetailsFields';
@@ -70,7 +70,7 @@ export default function ScreenVehicle() {
         age: participant.age || 0,
         gender: participant.gender || 'M',
         language: participant.language,
-        floor_preference: (participant.age && participant.age >= 70) ? 'Ground' : 'Any',
+        floor_preference: (participant.age && participant.age >= 70) ? 'Ground floor' : 'Any',
         status: 'registered'
       }));
 
@@ -86,11 +86,11 @@ export default function ScreenVehicle() {
             breakfast_at_host: prefs.breakfastAtHost,
             lunch_with_yatra: prefs.lunchWithYatra,
             physical_limitations: prefs.physicalLimitations || undefined,
-            toilet_preference: prefs.toiletPreference
+            toilet_preference: prefs.toiletPreference || 'indian'
           };
         });
 
-      await registrationService.register({
+      const response = await registrationService.register({
         event_id: activeEvent!.id,
         registration_type: draft.participants.length > 1 ? 'group' : 'individual',
         number_of_members: draft.participants.length,
@@ -102,8 +102,8 @@ export default function ScreenVehicle() {
       });
 
       toast.update(id, { variant: 'success', title: 'Registration submitted!' });
-      dispatch(resetDraft()); // Reset the form after successful submission
-      nav('/');
+      dispatch(setRegistrationResponse(response)); // Store the response
+      nav('/registration-members'); // Navigate to member list page
     } catch (e) {
       console.error('Registration failed:', e);
       toast.update(id, { 

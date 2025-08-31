@@ -1,17 +1,17 @@
 export type Gender = 'M' | 'F' | 'O';
-export type FloorPreference = 'Ground' | 'First' | 'Any';
+export type FloorPreference = 'Ground floor' | 'First floor' | 'Any';
 export type ToiletPreference = 'indian' | 'western';
-export type MemberStatus = 'registered' | 'cancelled';
+export type MemberStatus = 'registered' | 'waiting' | 'confirmed' | 'cancelled';
 
 export interface RegistrationMember {
   name: string;
   phone_number: string;
-  email: string;
-  city: string;
-  age: number;
+  email?: string;
+  city?: string;
+  age?: number;
   gender: Gender;
-  language: string;
-  floor_preference: FloorPreference;
+  language?: string;
+  floor_preference?: FloorPreference;
   special_requirements?: string;
   status: MemberStatus;
 }
@@ -23,7 +23,7 @@ export interface DailyPreference {
   breakfast_at_host: boolean;
   lunch_with_yatra: boolean;
   physical_limitations?: string;
-  toilet_preference: ToiletPreference | null;
+  toilet_preference: ToiletPreference;
 }
 
 export interface RegistrationRequest {
@@ -38,8 +38,15 @@ export interface RegistrationRequest {
   daily_preferences: DailyPreference[];
 }
 
-export interface RegistrationResponse extends Omit<RegistrationRequest, 'members' | 'daily_preferences'> {
+export interface RegistrationResponse {
   id: number;
+  event_id: string;
+  registration_type: 'individual' | 'group';
+  number_of_members: number;
+  transportation_mode: 'public' | 'private';
+  has_empty_seats: boolean;
+  available_seats_count?: number;
+  notes?: string;
   created_at: string;
   updated_at: string;
   members: (RegistrationMember & {

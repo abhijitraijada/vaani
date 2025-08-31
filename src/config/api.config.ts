@@ -14,7 +14,7 @@ const DEFAULT_TIMEOUT = 30000; // 30 seconds
 export const apiConfig: ApiConfig = {
   baseURL: import.meta.env.PROD 
     ? import.meta.env.VITE_API_BASE_URL 
-    : 'http://127.0.0.1:8000/api',
+    : 'https://prac-pad-agent-dccc5b6927b7.herokuapp.com/api',
   timeout: DEFAULT_TIMEOUT,
   headers: {
     'Content-Type': 'application/json',

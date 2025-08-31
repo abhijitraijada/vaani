@@ -1,7 +1,7 @@
 import { Section } from '../components/primitives/Layout';
 import { Text } from '../components/primitives/Typography';
 import { Button } from '../components/primitives/Button';
-import { Header } from '../components/navigation/AppShell';
+import { Header, Footer } from '../components/navigation/AppShell';
 import { useNavigate } from 'react-router-dom';
 
 export default function ContactUs() {
@@ -251,6 +251,27 @@ export default function ContactUs() {
           </div>
         </Section>
       </main>
+
+      <Footer>
+        <div className="text-center space-y-2">
+          <Text className="text-sm">
+            <div 
+              onClick={() => navigate('/')} 
+              className="text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium cursor-pointer hover:underline"
+            >
+              Home
+            </div>
+          </Text>
+          <Text className="text-sm">
+            <div 
+              onClick={() => navigate('/hotel-information')} 
+              className="text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium cursor-pointer hover:underline"
+            >
+              Hotel Information
+            </div>
+          </Text>
+        </div>
+      </Footer>
     </div>
   );
 }

@@ -20,6 +20,7 @@ import { PhoneLookupInline } from '../components/shared/PhoneLookupInline';
 import { SectionHeaderWithActions } from '../components/shared/SectionHeaderWithActions';
 import { EmptyState } from '../components/shared/EmptyState';
 import { Banner } from '../components/shared/Banner';
+import { AppFooter } from '../components/shared/AppFooter';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -329,6 +330,7 @@ export default function ComponentShowcase() {
           </Stack>
         </Section>
       </Container>
+      <AppFooter />
     </div>
   );
 }
