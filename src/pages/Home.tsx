@@ -60,7 +60,8 @@ export default function Home() {
                 <h3 className="text-lg font-semibold text-yellow-800 dark:text-yellow-200 mb-2">Important Notice</h3>
                 <p className="text-yellow-700 dark:text-yellow-300">
                   Participants who do not want to stay as village's guests do not need to register to attend the yatra. 
-                  They can attend without registration. Please contact the hotel owners directly for accommodation arrangements.
+                  They can attend without registration. Contact the hotel owners directly for accommodation arrangements.
+                  Lunch will be provided on prior request; all other meals must be arranged by the participants themselves.
                 </p>
               </div>
             </div>
