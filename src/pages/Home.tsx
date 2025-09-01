@@ -5,6 +5,9 @@ import { Button } from '../components/primitives/Button';
 import { Footer } from '../components/navigation/AppShell';
 import { useState } from 'react';
 import HotelInformation from '../components/shared/HotelInformation';
+import { PhoneInput } from '../components/form/Fields';
+import { registrationService } from '../services/endpoints/registration.service';
+import type { SearchParticipantResponse } from '../services/endpoints/registration.types';
 
 import { useAppSelector } from '../store';
 import { shallowEqual } from 'react-redux';
@@ -13,6 +16,11 @@ export default function Home() {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [currentDate] = useState<Date>(new Date());
+  const [searchModal, setSearchModal] = useState(false);
+  const [searchData, setSearchData] = useState<SearchParticipantResponse | null>(null);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [phoneNumber, setPhoneNumber] = useState('');
   const { activeEvent } = useAppSelector(state => ({
     activeEvent: state.events.activeEvent
   }), shallowEqual);
@@ -26,6 +34,53 @@ export default function Home() {
       navigate('/participant/register');
     } else {
       setShowModal(true);
+    }
+  };
+
+  const handleSearch = async () => {
+    if (!phoneNumber.trim()) {
+      setSearchError('Please enter a phone number');
+      return;
+    }
+
+    // Remove spaces from phone number
+    let cleanedPhoneNumber = phoneNumber.replace(/\s/g, '');
+    
+    // Remove country code only if phone number is longer than 10 digits
+    if (cleanedPhoneNumber.length > 10) {
+      if (cleanedPhoneNumber.startsWith('+91')) {
+        cleanedPhoneNumber = cleanedPhoneNumber.substring(3);
+      } else if (cleanedPhoneNumber.startsWith('91')) {
+        cleanedPhoneNumber = cleanedPhoneNumber.substring(2);
+      } else if (cleanedPhoneNumber.startsWith('+')) {
+        // Remove any other country code starting with +
+        cleanedPhoneNumber = cleanedPhoneNumber.substring(1);
+      }
+    }
+    
+    // Validate phone number length (should be at least 10 digits)
+    if (cleanedPhoneNumber.length < 10) {
+      setSearchError('Phone number should be at least 10 digits long');
+      return;
+    }
+    
+    // Validate that it contains only digits
+    if (!/^\d+$/.test(cleanedPhoneNumber)) {
+      setSearchError('Phone number should contain only digits');
+      return;
+    }
+
+    setSearchLoading(true);
+    setSearchError(null);
+    
+    try {
+      const data = await registrationService.searchParticipant(cleanedPhoneNumber);
+      setSearchData(data);
+      setSearchModal(true);
+    } catch (error: any) {
+      setSearchError(error.message || 'Failed to search registration');
+    } finally {
+      setSearchLoading(false);
     }
   };
 
@@ -67,6 +122,39 @@ export default function Home() {
             </div>
           </Container>
         </section>
+
+        {/* Search bar here */}
+        <Section>
+          <div className="mb-8 text-center">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Search Registration</h2>
+            <p className="text-gray-600 dark:text-gray-400">Enter your mobile number to check your registration status</p>
+          </div>
+          
+                     <div className="max-w-md mx-auto">
+             <div className="flex gap-2">
+               <div className="flex-1">
+                 <PhoneInput
+                   placeholder="Enter mobile number"
+                   className="w-full"
+                   value={phoneNumber}
+                   onChange={(e) => setPhoneNumber(e.target.value)}
+                   onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                 />
+               </div>
+               <Button 
+                 size="md"
+                 className="px-6"
+                 onClick={handleSearch}
+                 loading={searchLoading}
+               >
+                 Search
+               </Button>
+             </div>
+             {searchError && (
+               <p className="text-red-600 text-sm mt-2 text-center">{searchError}</p>
+             )}
+           </div>
+        </Section>
 
         <Section>
         <div className="mb-8 text-center">
@@ -365,32 +453,184 @@ export default function Home() {
         </div>
       </Footer>
 
-      {/* Registration Modal */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md mx-4 shadow-xl">
-            <div className="text-center">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30 mb-4">
-                <svg className="h-6 w-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                Registration Not Open Yet
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">
-                Registration for {activeEvent?.event_name} will open on {new Date(activeEvent?.registration_start_date || '').toLocaleDateString()}.
-              </p>
-              <Button 
-                onClick={() => setShowModal(false)}
-                className="w-full"
-              >
-                Got it
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+             {/* Registration Modal */}
+       {showModal && (
+         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md mx-4 shadow-xl">
+             <div className="text-center">
+               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30 mb-4">
+                 <svg className="h-6 w-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                 </svg>
+               </div>
+               <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                 Registration Not Open Yet
+               </h3>
+               <p className="text-gray-600 dark:text-gray-400 mb-6">
+                 Registration for {activeEvent?.event_name} will open on {new Date(activeEvent?.registration_start_date || '').toLocaleDateString()}.
+               </p>
+               <Button 
+                 onClick={() => setShowModal(false)}
+                 className="w-full"
+               >
+                 Got it
+               </Button>
+             </div>
+           </div>
+         </div>
+       )}
+
+       {/* Search Results Modal */}
+       {searchModal && searchData && (
+         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+           <div className="bg-white dark:bg-gray-800 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-xl">
+             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+               <div className="flex items-center justify-between">
+                 <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                   Registration Details
+                 </h2>
+                 <Button
+                   variant="ghost"
+                   size="sm"
+                   onClick={() => setSearchModal(false)}
+                   className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                 >
+                   ✕
+                 </Button>
+               </div>
+             </div>
+
+             <div className="p-6 space-y-8">
+                               {/* Members Table */}
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                    Members ({searchData.members.length})
+                  </h3>
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+                      <thead>
+                        <tr>
+                          <th className="bg-indigo-600 text-white px-4 py-3 text-center font-semibold text-sm sm:text-base border-b border-indigo-700">
+                            Name
+                          </th>
+                          <th className="bg-indigo-600 text-white px-4 py-3 text-center font-semibold text-sm sm:text-base border-b border-indigo-700">
+                            Status
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {searchData.members.map((member) => (
+                          <tr key={member.id}>
+                            <td className="bg-blue-50 dark:bg-blue-900/20 px-4 py-3 text-center border-b border-gray-200 dark:border-gray-700">
+                              <div className="font-semibold text-sm sm:text-base">{member.name}</div>
+                            </td>
+                            <td className="bg-blue-50 dark:bg-blue-900/20 px-4 py-3 text-center border-b border-gray-200 dark:border-gray-700">
+                              <div className={`font-semibold text-sm sm:text-base ${
+                                member.status === 'confirmed'
+                                  ? 'text-green-600 dark:text-green-400'
+                                  : member.status === 'registered'
+                                  ? 'text-blue-600 dark:text-blue-400'
+                                  : member.status === 'cancelled'
+                                  ? 'text-red-600 dark:text-red-400'
+                                  : member.status === 'waiting'
+                                  ? 'text-yellow-600 dark:text-yellow-400'
+                                  : 'text-gray-600 dark:text-gray-400'
+                              }`}>
+                                {member.status.charAt(0).toUpperCase() + member.status.slice(1)}
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                               {/* Daily Schedule Cards */}
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                    Daily Schedule ({searchData.daily_schedule.length} days)
+                  </h3>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {searchData.daily_schedule
+                      .sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime())
+                      .map((day) => (
+                        <div key={day.event_day_id} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600 flex flex-col h-55">
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                            {new Date(day.event_date).toLocaleDateString('en-US', { 
+                              weekday: 'long', 
+                              year: 'numeric', 
+                              month: 'long', 
+                              day: 'numeric' 
+                            })}
+                          </h4>
+                          <span className="text-sm font-medium text-indigo-600 dark:text-indigo-400">
+                            {day.location_name}
+                          </span>
+                        </div>
+                        
+                        <div className="flex-1 flex flex-col">
+                          <div className="space-y-3">
+                         <div>
+                           <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                             {day.daily_notes}
+                           </p>
+                         </div>
+                         
+                                                   {day.staying_with_yatra && (
+                            <div className="grid grid-cols-2 gap-2 text-sm">
+                              <div className="flex items-center space-x-2">
+                                <span className={`w-2 h-2 rounded-full ${day.staying_with_yatra ? 'bg-green-500' : 'bg-gray-300'}`}></span>
+                                <span className="text-gray-700 dark:text-gray-300">Staying</span>
+                              </div>
+                              {day.breakfast_provided && (
+                                <div className="flex items-center space-x-2">
+                                  <span className={`w-2 h-2 rounded-full ${day.breakfast_at_host ? 'bg-green-500' : 'bg-gray-300'}`}></span>
+                                  <span className="text-gray-700 dark:text-gray-300">Breakfast</span>
+                                </div>
+                              )}
+                              {day.lunch_provided && (
+                                <div className="flex items-center space-x-2">
+                                  <span className={`w-2 h-2 rounded-full ${day.lunch_with_yatra ? 'bg-green-500' : 'bg-gray-300'}`}></span>
+                                  <span className="text-gray-700 dark:text-gray-300">Lunch</span>
+                                </div>
+                              )}
+                              {day.dinner_provided && (
+                                <div className="flex items-center space-x-2">
+                                  <span className={`w-2 h-2 rounded-full ${day.dinner_at_host ? 'bg-green-500' : 'bg-gray-300'}`}></span>
+                                  <span className="text-gray-700 dark:text-gray-300">Dinner</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                         
+                                                                             </div>
+                          
+                          <div className="pt-2 border-t border-gray-200 dark:border-gray-600 mt-auto">
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              Toilet: {day.toilet_preference.charAt(0).toUpperCase() + day.toilet_preference.slice(1)} | 
+                              Physical Limitations: {day.physical_limitations}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                   ))}
+                 </div>
+               </div>
+             </div>
+
+             <div className="p-6 border-t border-gray-200 dark:border-gray-700">
+               <Button
+                 onClick={() => setSearchModal(false)}
+                 className="w-full"
+               >
+                 Close
+               </Button>
+             </div>
+           </div>
+         </div>
+       )}
     </div>
   );
 }
