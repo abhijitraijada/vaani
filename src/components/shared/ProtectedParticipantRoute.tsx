@@ -8,6 +8,9 @@ export function ProtectedParticipantRoute({ children }: { children: React.ReactN
   const { participants, preferencesByDate } = useAppSelector(state => state.registrationDraft);
 
   useEffect(() => {
+    if (true) {
+      navigate('/');      
+    }
     const currentPath = location.pathname;
     
     // Helper function to check if participant data is valid
