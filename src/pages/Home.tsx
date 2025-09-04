@@ -15,7 +15,7 @@ import { shallowEqual } from 'react-redux';
 export default function Home() { 
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
-  const [currentDate] = useState<Date>(new Date());
+  // const [currentDate] = useState<Date>(new Date());
   const [searchModal, setSearchModal] = useState(false);
   const [searchData, setSearchData] = useState<SearchParticipantResponse | null>(null);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -28,7 +28,7 @@ export default function Home() {
   const handleRegisterClick = () => {
     if (!activeEvent) return;
     
-    const registrationStartDate = new Date(activeEvent.registration_start_date);
+    // const registrationStartDate = new Date(activeEvent.registration_start_date);
 
     // if (currentDate >= registrationStartDate) {
     if (false) {
