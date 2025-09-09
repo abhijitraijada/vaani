@@ -112,7 +112,7 @@ export default function Login() {
                 type="tel"
                 value={formData.phone_number}
                 onChange={handleInputChange}
-                placeholder="+1234567890"
+                placeholder="1234567890"
                 aria-invalid={!!formErrors.phone_number}
                 disabled={isLoading}
                 className="mt-1"
