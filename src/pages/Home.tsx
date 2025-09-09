@@ -15,7 +15,7 @@ import { shallowEqual } from 'react-redux';
 export default function Home() { 
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
-  const [currentDate] = useState<Date>(new Date());
+  // const [currentDate] = useState<Date>(new Date());
   const [searchModal, setSearchModal] = useState(false);
   const [searchData, setSearchData] = useState<SearchParticipantResponse | null>(null);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -29,9 +29,10 @@ export default function Home() {
   const handleRegisterClick = () => {
     if (!activeEvent) return;
     
-    const registrationStartDate = new Date(activeEvent.registration_start_date);
-    
-    if (currentDate >= registrationStartDate) {
+    // const registrationStartDate = new Date(activeEvent.registration_start_date);
+
+    // if (currentDate >= registrationStartDate) {
+    if (false) {
       navigate('/participant/register');
     } else {
       setShowModal(true);
@@ -474,10 +475,12 @@ export default function Home() {
                  </svg>
                </div>
                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                 Registration Not Open Yet
+                 {/*Registration Not Open Yet */}
+                 Registration is closed!
                </h3>
                <p className="text-gray-600 dark:text-gray-400 mb-6">
-                 Registration for {activeEvent?.event_name} will open on {new Date(activeEvent?.registration_start_date || '').toLocaleDateString()}.
+                 {/*Registration for {activeEvent?.event_name} will open on {new Date(activeEvent?.registration_start_date || '').toLocaleDateString()}. */}
+                 Registration for {activeEvent?.event_name} is closed!
                </p>
                <Button 
                  onClick={() => setShowModal(false)}
