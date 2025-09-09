@@ -6,18 +6,21 @@ import { ThemeProvider } from './theme/ThemeProvider'
 import { LoadingProvider } from './theme/LoadingProvider'
 import { ToastProvider } from './components/feedback/Toast'
 import { Provider } from 'react-redux'
-import { store } from './store'
+import { PersistGate } from 'redux-persist/integration/react'
+import { store, persistor } from './store'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Provider store={store}>
-      <ThemeProvider>
-        <LoadingProvider>
-          <ToastProvider>
-            <App />
-          </ToastProvider>
-        </LoadingProvider>
-      </ThemeProvider>
+      <PersistGate loading={null} persistor={persistor}>
+        <ThemeProvider>
+          <LoadingProvider>
+            <ToastProvider>
+              <App />
+            </ToastProvider>
+          </LoadingProvider>
+        </ThemeProvider>
+      </PersistGate>
     </Provider>
   </StrictMode>,
 )

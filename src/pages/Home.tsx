@@ -21,8 +21,9 @@ export default function Home() {
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [phoneNumber, setPhoneNumber] = useState('');
-  const { activeEvent } = useAppSelector(state => ({
-    activeEvent: state.events.activeEvent
+  const { activeEvent, isAuthenticated } = useAppSelector(state => ({
+    activeEvent: state.events.activeEvent,
+    isAuthenticated: state.user.isAuthenticated
   }), shallowEqual);
 
   const handleRegisterClick = () => {
@@ -108,6 +109,15 @@ export default function Home() {
                 >
                   Register now
                 </Button>
+                {isAuthenticated && (
+                  <Button 
+                    variant="secondary" 
+                    className="h-12 px-6 text-base" 
+                    onClick={() => navigate('/dashboard')}
+                  >
+                    View Dashboard
+                  </Button>
+                )}
                 <Button variant="secondary" className="h-12 px-6 text-base" onClick={() => window.open('https://www.youtube.com/@vasundharavani3048', '_blank')}>Explore highlights</Button>
                 <Button variant="secondary" className="h-12 px-6 text-base" onClick={() => navigate('/contact')}>Contact Us</Button>
               </div>
