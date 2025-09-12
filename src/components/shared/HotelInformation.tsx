@@ -20,6 +20,12 @@ const hotelData: HotelInfo[] = [
     name: 'Jayubhai',
     hotel: 'J.K. Hotel',
     location: 'Vallbhipur'
+  },
+  {
+    number: '7575002523',
+    name: 'Kunalbhai Shah',
+    hotel: 'Mahendra Puram',
+    location: 'Vallbhipur'
   }
 ];
 
