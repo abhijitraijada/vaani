@@ -5,13 +5,17 @@ import { Heading } from '../primitives/Typography';
 import { Button } from '../primitives/Button';
 import { Chip } from '../primitives/Badge';
 import { ExportButton } from '../export';
+import { StatusDropdown } from './StatusDropdown';
 import { cn } from '../../lib/cn';
 import type { ExportOptions } from '../../services/export/export.types';
+import type { MemberStatus } from '../../services/endpoints/registration.types';
 
 interface ParticipantsTableProps {
   participants: Participant[];
   onPageChange: (page: number) => void;
   onExport?: (options: ExportOptions) => Promise<void>;
+  onAddParticipant?: () => void;
+  onStatusUpdate?: (participantId: string, status: MemberStatus) => Promise<void>;
   availableDays?: Array<{
     id: string;
     date: string;
@@ -27,12 +31,15 @@ export function ParticipantsTable({
   participants, 
   onPageChange, 
   onExport,
+  onAddParticipant,
+  onStatusUpdate,
   availableDays,
   className 
 }: ParticipantsTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState<{ key: 'age' | null; direction: 'asc' | 'desc' }>({ key: null, direction: 'asc' });
   const [currentPage, setCurrentPage] = useState(1);
+  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
   const pageSize = 50;
 
   const handleSort = (key: 'age') => {
@@ -48,6 +55,20 @@ export function ParticipantsTable({
       // If clicking a different key or no current sort, start with asc
       return { key, direction: 'asc' };
     });
+  };
+
+  const handleStatusUpdate = async (participantId: string, status: MemberStatus) => {
+    if (!onStatusUpdate) return;
+    
+    setUpdatingStatus(participantId);
+    try {
+      await onStatusUpdate(participantId, status);
+    } catch (error) {
+      console.error('Failed to update participant status:', error);
+      // You could add toast notification here
+    } finally {
+      setUpdatingStatus(null);
+    }
   };
 
   const filteredParticipants = useMemo(() => {
@@ -98,21 +119,6 @@ export function ParticipantsTable({
     setCurrentPage(1);
   }, [participants]);
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'confirmed':
-        return <Chip tone="success">Confirmed</Chip>;
-      case 'waiting':
-        return <Chip tone="warning">Waiting</Chip>;
-      case 'registered':
-        return <Chip tone="info">Registered</Chip>;
-      case 'cancelled':
-        return <Chip tone="danger">Cancelled</Chip>;
-      default:
-        return <Chip tone="default">{status}</Chip>;
-    }
-  };
-
 
   return (
     <Card className={cn('p-6', className)}>
@@ -132,15 +138,28 @@ export function ParticipantsTable({
             />
           </div>
           
-          {/* Export Button */}
-          {onExport && availableDays && (
-            <div className="flex-shrink-0">
+          {/* Action Buttons */}
+          <div className="flex-shrink-0 flex gap-2">
+            <Button
+              variant="primary"
+              onClick={onAddParticipant}
+            >
+              <div className="flex items-center space-x-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                <span>Add Participant</span>
+              </div>
+            </Button>
+            
+            {/* Export Button */}
+            {onExport && availableDays && (
               <ExportButton
                 onExport={onExport}
                 availableDays={availableDays}
               />
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 
@@ -212,7 +231,11 @@ export function ParticipantsTable({
                   </div>
                 </td>
                 <td className="py-4 px-4 text-left">
-                  {getStatusBadge(participant.status)}
+                  <StatusDropdown
+                    currentStatus={participant.status}
+                    onStatusChange={(status) => handleStatusUpdate(participant.id, status)}
+                    isLoading={updatingStatus === participant.id}
+                  />
                 </td>
                 <td className="py-4 px-4 text-left">
                   <div className="text-sm">

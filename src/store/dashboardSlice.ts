@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { dashboardService } from '../services/endpoints/dashboard.service';
-import type { DashboardResponse, EventDay, PaginatedParticipants } from '../services/endpoints/dashboard.types';
+import type { DashboardResponse, EventDay, PaginatedParticipants, Participant } from '../services/endpoints/dashboard.types';
 
 export type DashboardState = {
   eventData: DashboardResponse | null;
@@ -52,6 +52,28 @@ const dashboardSlice = createSlice({
       state.paginatedData = {};
       state.error = null;
     },
+    updateParticipantStatus: (state, action: PayloadAction<{ participantId: string; updatedParticipant: Participant }>) => {
+      const { participantId, updatedParticipant } = action.payload;
+      
+      if (state.eventData) {
+        // Update participant in all event days
+        state.eventData.daily_schedule.forEach((day: EventDay) => {
+          const participantIndex = day.participants.findIndex(p => p.id === participantId);
+          if (participantIndex !== -1) {
+            day.participants[participantIndex] = updatedParticipant;
+          }
+        });
+
+        // Update paginated data if it exists for any day
+        Object.keys(state.paginatedData).forEach(dayId => {
+          const paginatedData = state.paginatedData[dayId];
+          const participantIndex = paginatedData.participants.findIndex(p => p.id === participantId);
+          if (participantIndex !== -1) {
+            paginatedData.participants[participantIndex] = updatedParticipant;
+          }
+        });
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -87,7 +109,8 @@ export const {
   setPageSize, 
   updatePaginatedData, 
   clearError, 
-  resetDashboard 
+  resetDashboard,
+  updateParticipantStatus
 } = dashboardSlice.actions;
 
 export default dashboardSlice.reducer;

@@ -12,6 +12,11 @@ export * from './navigation/AppShell';
 export * from './navigation/Nav';
 export * from './navigation/Tabs';
 export * from './navigation/Breadcrumbs';
+export * from './navigation/Sidebar';
+export * from './navigation/DashboardHeader';
+
+export * from './dashboard/AddParticipantModal';
+export * from './dashboard/StatusDropdown';
 
 export * from './data/Table';
 export * from './data/Cards';

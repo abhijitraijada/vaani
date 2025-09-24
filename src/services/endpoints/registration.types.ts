@@ -98,3 +98,24 @@ export interface SearchParticipantResponse {
     updated_at: string;
   }[];
 }
+
+export interface StatusUpdateRequest {
+  status: MemberStatus;
+}
+
+export interface StatusUpdateResponse {
+  id: string;
+  registration_id: number;
+  name: string;
+  phone_number: string;
+  email: string;
+  city: string;
+  age: number;
+  gender: Gender;
+  language: string;
+  floor_preference: string;
+  special_requirements: string | null;
+  status: MemberStatus;
+  created_at: string;
+  updated_at: string;
+}

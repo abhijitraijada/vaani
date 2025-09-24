@@ -33,12 +33,18 @@ export function ParticipantRegistrationForm({
   onAdd,
   onRemove,
   onNext,
+  submitButtonText = "Next",
+  isSubmitting = false,
+  onCancel,
 }: {
   participants: Participant[];
   onChange: (index: number, patch: Partial<Participant>) => void;
   onAdd: () => void;
   onRemove: (index: number) => void;
   onNext: () => void;
+  submitButtonText?: string;
+  isSubmitting?: boolean;
+  onCancel?: () => void;
 }) {
   const [openItem, setOpenItem] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<number, ValidationErrors>>({});
@@ -276,7 +282,18 @@ export function ParticipantRegistrationForm({
         <Stack className="gap-4">
           <Button variant="secondary" onClick={onAdd}>Add Another Member</Button>
           <div className="flex flex-col sm:flex-row justify-end gap-4">
-            <Button onClick={handleNext}>Next</Button>
+            {onCancel && (
+              <Button 
+                variant="secondary" 
+                onClick={onCancel}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+            )}
+            <Button onClick={handleNext} loading={isSubmitting} disabled={isSubmitting}>
+              {submitButtonText}
+            </Button>
           </div>
         </Stack>
       </Stack>

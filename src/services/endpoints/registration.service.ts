@@ -1,5 +1,5 @@
 import { BaseService } from '../base.service';
-import type { RegistrationRequest, RegistrationResponse, SearchParticipantResponse } from './registration.types';
+import type { RegistrationRequest, RegistrationResponse, SearchParticipantResponse, StatusUpdateRequest, StatusUpdateResponse } from './registration.types';
 import api from '../../lib/api';
 
 class RegistrationService extends BaseService {
@@ -14,6 +14,11 @@ class RegistrationService extends BaseService {
 
   async searchParticipant(phoneNumber: string): Promise<SearchParticipantResponse> {
     const response = await api.get<SearchParticipantResponse>(`${this.endpoint}search/participant?phone_number=${encodeURIComponent(phoneNumber)}`);
+    return response.data;
+  }
+
+  async updateParticipantStatus(memberId: string, data: StatusUpdateRequest): Promise<StatusUpdateResponse> {
+    const response = await api.put<StatusUpdateResponse>(`${this.endpoint}members/${memberId}/status`, data);
     return response.data;
   }
 }
