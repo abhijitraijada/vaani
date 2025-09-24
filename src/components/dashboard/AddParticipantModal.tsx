@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Card } from '../primitives/Layout';
 import { Button } from '../primitives/Button';
 import { Heading, Text } from '../primitives/Typography';
 import { ParticipantRegistrationForm, type Participant } from '../participant/ParticipantRegistrationForm';

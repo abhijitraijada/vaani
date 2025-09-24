@@ -3,7 +3,6 @@ import type { Participant } from '../../services/endpoints/dashboard.types';
 import { Card } from '../primitives/Layout';
 import { Heading } from '../primitives/Typography';
 import { Button } from '../primitives/Button';
-import { Chip } from '../primitives/Badge';
 import { ExportButton } from '../export';
 import { StatusDropdown } from './StatusDropdown';
 import { cn } from '../../lib/cn';

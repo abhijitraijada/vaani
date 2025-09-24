@@ -96,7 +96,7 @@ export function Footer({ children }: PropsWithChildren) {
   );
 }
 
-export function Sidebar({ children, className }: PropsWithChildren<{ className?: string }>) {
+export function AppSidebar({ children, className }: PropsWithChildren<{ className?: string }>) {
   return <aside className={cn('h-full w-64 shrink-0 border-r border-gray-200 dark:border-gray-800', className)}>{children}</aside>;
 }
 
