@@ -23,7 +23,7 @@ export default function HostsSimple() {
   // Get the active event ID from the events state
   const { activeEvent } = useAppSelector((state) => state.events);
 
-  const pageSize = 50;
+  const pageSize = 500;
 
   // Load hosts when component mounts or event changes
   useEffect(() => {
