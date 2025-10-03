@@ -3,6 +3,7 @@ import { Button } from '../primitives/Button';
 import { Heading, Text } from '../primitives/Typography';
 import { Card } from '../primitives/Layout';
 import { cn } from '../../lib/cn';
+import { hostDashboardService } from '../../services/endpoints/host.service';
 
 interface HostBulkUploadProps {
   eventId: string;
@@ -36,34 +37,30 @@ export function HostBulkUpload({ eventId, onUploadSuccess, className }: HostBulk
     setIsUploading(true);
     
     try {
-      const formData = new FormData();
-      formData.append('file', selectedFile);
-
-      // Using fetch directly since API integration will need backend endpoint
-      const response = await fetch(`/api/v1/hosts/upload-csv/${eventId}`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: formData,
+      const result = await hostDashboardService.bulkUploadHosts(eventId, selectedFile);
+      
+      setUploadResult({
+        total: result.total_rows,
+        successful: result.successful_imports,
+        failed: result.failed_imports,
+        errors: result.errors
       });
-
-      if (response.ok) {
-        const result = await response.json();
-        setUploadResult(result);
-        if (onUploadSuccess) {
-          onUploadSuccess();
-        }
-      } else {
-        throw new Error('Upload failed');
+      
+      if (onUploadSuccess && result.successful_imports > 0) {
+        onUploadSuccess();
       }
-    } catch (error) {
+      
+      // Clear the file input if upload was successful
+      if (result.successful_imports > 0) {
+        setSelectedFile(null);
+      }
+    } catch (error: any) {
       console.error('Upload error:', error);
       setUploadResult({
         total: 0,
         successful: 0,
         failed: 1,
-        errors: ['Upload failed. Please check the file format and try again.']
+        errors: [error?.message || 'Upload failed. Please check the file format and try again.']
       });
     } finally {
       setIsUploading(false);

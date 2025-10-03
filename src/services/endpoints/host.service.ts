@@ -154,11 +154,18 @@ export class HostDashboardService extends BaseService {
     const formData = new FormData();
     formData.append('file', csvFile);
     
-    const response = await api.post(`/v1/hosts/upload-csv/${eventId}`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    // When sending FormData, we need to delete the default Content-Type header
+    // so axios can set the correct multipart/form-data with boundary
+    const response = await api.post<HostBulkUploadResponse>(
+      `/v1/hosts/upload-csv/${eventId}`, 
+      formData,
+      {
+        headers: {
+          'Content-Type': undefined as any, // Remove default Content-Type
+        },
+        transformRequest: [(data) => data], // Prevent JSON transformation
+      }
+    );
     return response.data;
   }
 }
