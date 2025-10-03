@@ -1,9 +1,12 @@
 import type { EventDay } from '../../services/endpoints/dashboard.types';
+import type { HostDailySchedule } from '../../services/endpoints/host.types';
 import { Button } from '../primitives/Button';
 import { cn } from '../../lib/cn';
 
+type DayData = EventDay | HostDailySchedule;
+
 interface DateTabsProps {
-  days: EventDay[];
+  days: DayData[];
   selectedDayId: string | null;
   onDaySelect: (dayId: string) => void;
   className?: string;

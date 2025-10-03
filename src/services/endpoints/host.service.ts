@@ -5,7 +5,8 @@ import type {
   CreateHostRequest, 
   UpdateHostRequest, 
   HostsListQuery, 
-  HostsResponse,
+  HostsByEventResponse,
+  HostEventDay,
   HostAssignment,
   CreateHostAssignmentRequest,
   UpdateHostAssignmentRequest,
@@ -29,7 +30,7 @@ export class HostService extends BaseService {
     return response.data;
   }
 
-  async getHostsByEvent(eventId: string, query?: HostsListQuery): Promise<HostsResponse> {
+  async getHostsByEvent(eventId: string, query?: HostsListQuery): Promise<HostsByEventResponse> {
     const queryParams = new URLSearchParams();
     
     if (query) {
@@ -41,7 +42,7 @@ export class HostService extends BaseService {
     }
     
     const path = `/v1/hosts/event/${eventId}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
-    const response = await api.get<HostsResponse>(path);
+    const response = await api.get<HostsByEventResponse>(path);
     return response.data;
   }
 
@@ -113,36 +114,26 @@ export class HostDashboardService extends BaseService {
   // Dashboard-specific methods
   
   async getDashboardHosts(eventId: string): Promise<DashboardHostsResponse> {
-    // Since there's no dedicated dashboard endpoint, we'll create the structure from existing endpoints
+    // Use the new API structure that returns hosts grouped by event days
     const hostsResponse = await hostService.getHostsByEvent(eventId);
     const dailySchedule: HostDailySchedule[] = [];
     
-    // For now, we'll create a single day structure since the API only provides hosts by event
-    // In the future, you might want to create a dedicated dashboard endpoint
-    if (hostsResponse.hosts.length > 0) {
-      // Get event days from the event service (you'll need to integrate this)
-      // For now, create a mock daily schedule
-      hostsResponse.hosts.forEach((host: Host, index: number) => {
-        const hostWithAssignments: HostWithAssignments = {
-          ...host,
-          assignments: [], // We'll fetch these separately if needed
-          current_capacity: 0, // This would need to be calculated from assignments
-        };
-        
-        // Create a single day entry for all hosts
-        if (index === 0) {
-          dailySchedule.push({
-            event_day_id: `day-1-${eventId}`,
-            event_date: new Date().toISOString().split('T')[0], // Today's date as fallback
-            location_name: 'Event Location', // Fallback location
-            hosts: hostWithAssignments ? [hostWithAssignments] : [],
-            daily_notes: '',
-          });
-        } else if (dailySchedule.length > 0) {
-          dailySchedule[0].hosts.push(hostWithAssignments);
-        }
+    // Transform the new API response to match the dashboard structure
+    hostsResponse.event_days.forEach((eventDay: HostEventDay) => {
+      const hostsWithAssignments: HostWithAssignments[] = eventDay.hosts.map((host: Host) => ({
+        ...host,
+        assignments: [], // We'll fetch these separately if needed
+        current_capacity: 0, // This would need to be calculated from assignments
+      }));
+      
+      dailySchedule.push({
+        event_day_id: eventDay.event_day_id,
+        event_date: eventDay.event_date,
+        location_name: 'Event Location', // This would come from event service
+        hosts: hostsWithAssignments,
+        daily_notes: '',
       });
-    }
+    });
     
     return {
       event_id: eventId,
@@ -157,7 +148,7 @@ export class HostDashboardService extends BaseService {
     // When sending FormData, we need to delete the default Content-Type header
     // so axios can set the correct multipart/form-data with boundary
     const response = await api.post<HostBulkUploadResponse>(
-      `/v1/hosts/upload-csv/${eventId}`, 
+      `/v1/hosts/upload/${eventId}`, 
       formData,
       {
         headers: {

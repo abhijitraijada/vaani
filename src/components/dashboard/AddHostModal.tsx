@@ -9,13 +9,15 @@ interface AddHostModalProps {
   onClose: () => void;
   onSubmit: (hostData: CreateHostRequest) => Promise<void>;
   eventId: string;
+  eventDaysId?: string;
   className?: string;
 }
 
-export function AddHostModal({ isOpen, onClose, onSubmit, eventId, className }: AddHostModalProps) {
+export function AddHostModal({ isOpen, onClose, onSubmit, eventId, eventDaysId, className }: AddHostModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<CreateHostRequest>({
     event_id: eventId,
+    event_days_id: eventDaysId || '',
     name: '',
     phone_no: 0,
     place_name: '',
@@ -28,6 +30,10 @@ export function AddHostModal({ isOpen, onClose, onSubmit, eventId, className }: 
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
+    
+    if (!formData.event_days_id.trim()) {
+      newErrors.event_days_id = 'Event day is required';
+    }
     
     if (!formData.name.trim()) {
       newErrors.name = 'Host name is required';
@@ -47,8 +53,6 @@ export function AddHostModal({ isOpen, onClose, onSubmit, eventId, className }: 
     
     if (!formData.facilities_description.trim()) {
       newErrors.facilities_description = 'Facilities description is required';
-
-
     }
     
     setErrors(newErrors);
@@ -78,6 +82,7 @@ export function AddHostModal({ isOpen, onClose, onSubmit, eventId, className }: 
     // Reset form data
     setFormData({
       event_id: eventId,
+      event_days_id: eventDaysId || '',
       name: '',
       phone_no: 0,
       place_name: '',

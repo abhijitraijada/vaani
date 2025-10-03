@@ -12,7 +12,6 @@ interface HostsTableProps {
   onPageChange: (page: number) => void;
   onExport?: (options: ExportOptions) => Promise<void>;
   onAddHost?: () => void;
-  onSearch?: (term: string) => void;
   availableDays?: Array<{
     id: string;
     date: string;
@@ -30,7 +29,6 @@ export function HostsTable({
   onPageChange, 
   onExport,
   onAddHost,
-  onSearch,
   availableDays,
   className 
 }: HostsTableProps) {
@@ -96,9 +94,6 @@ export function HostsTable({
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
     setCurrentPage(1);
-    if (onSearch) {
-      onSearch(value);
-    }
   };
 
   const handlePageChangeInternal = (page: number) => {

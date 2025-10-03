@@ -6,6 +6,8 @@ export type GenderPreference = 'male' | 'female' | 'both';
 export interface Host {
   id: string;
   event_id: string;
+  event_days_id: string;
+  event_date: string;
   name: string;
   phone_no: number;
   place_name: string;
@@ -19,6 +21,7 @@ export interface Host {
 
 export interface CreateHostRequest {
   event_id: string;
+  event_days_id: string;
   name: string;
   phone_no: number;
   place_name: string;
@@ -29,6 +32,7 @@ export interface CreateHostRequest {
 }
 
 export interface UpdateHostRequest {
+  event_days_id?: string;
   name?: string;
   phone_no?: number;
   place_name?: string;
@@ -57,6 +61,20 @@ export interface HostsResponse {
   page: number;
   page_size: number;
   total_pages: number;
+}
+
+// New API response structure for hosts by event
+export interface HostsByEventResponse {
+  event_id: string;
+  event_days: HostEventDay[];
+  total_hosts: number;
+}
+
+export interface HostEventDay {
+  event_date: string;
+  event_day_id: string;
+  hosts: Host[];
+  total_hosts: number;
 }
 
 export interface HostAssignment {
