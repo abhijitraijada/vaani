@@ -1,0 +1,169 @@
+import { BaseService } from '../base.service';
+import api from '../../lib/api';
+import type { 
+  Host, 
+  CreateHostRequest, 
+  UpdateHostRequest, 
+  HostsListQuery, 
+  HostsResponse,
+  HostAssignment,
+  CreateHostAssignmentRequest,
+  UpdateHostAssignmentRequest,
+  HostAssignmentsQuery,
+  HostAssignmentsResponse,
+  HostBulkUploadResponse,
+  DashboardHostsResponse,
+  HostDailySchedule,
+  HostWithAssignments
+} from './host.types';
+
+export class HostService extends BaseService {
+  constructor() {
+    super('/v1/hosts');
+  }
+
+  // Host Management Methods
+  
+  async createHost(hostData: CreateHostRequest): Promise<Host> {
+    const response = await api.post<Host>('/v1/hosts', hostData);
+    return response.data;
+  }
+
+  async getHostsByEvent(eventId: string, query?: HostsListQuery): Promise<HostsResponse> {
+    const queryParams = new URLSearchParams();
+    
+    if (query) {
+      Object.entries(query)?.forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          queryParams.append(key, value.toString());
+        }
+      });
+    }
+    
+    const path = `/v1/hosts/event/${eventId}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    const response = await api.get<HostsResponse>(path);
+    return response.data;
+  }
+
+  async getHost(hostId: string): Promise<Host> {
+    const response = await api.get<Host>(`/v1/hosts/${hostId}`);
+    return response.data;
+  }
+
+  async updateHost(hostId: string, hostData: UpdateHostRequest): Promise<Host> {
+    const response = await api.put<Host>(`/v1/hosts/${hostId}`, hostData);
+    return response.data;
+  }
+
+  async deleteHost(hostId: string): Promise<{ message: string; deleted_host_id: string }> {
+    const response = await api.delete<{ message: string; deleted_host_id: string }>(`/v1/hosts/${hostId}`);
+    return response.data;
+  }
+}
+
+export class HostAssignmentService extends BaseService {
+  constructor() {
+    super('/v1/host-assignments');
+  }
+
+  // Host Assignment Methods
+  
+  async createHostAssignment(assignmentData: CreateHostAssignmentRequest): Promise<HostAssignment> {
+    const response = await api.post<HostAssignment>('/v1/host-assignments', assignmentData);
+    return response.data;
+  }
+
+  async getHostAssignments(query?: HostAssignmentsQuery): Promise<HostAssignmentsResponse> {
+    const queryParams = new URLSearchParams();
+    
+    if (query) {
+      Object.entries(query).forEach(([key, value]) => {
+        if (value !== undefined) {
+          queryParams.append(key, value.toString());
+        }
+      });
+    }
+    
+    const path = `/v1/host-assignments${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    const response = await api.get<HostAssignmentsResponse>(path);
+    return response.data;
+  }
+
+  async getHostAssignment(assignmentId: string): Promise<HostAssignment> {
+    const response = await api.get<HostAssignment>(`/v1/host-assignments/${assignmentId}`);
+    return response.data;
+  }
+
+  async updateHostAssignment(assignmentId: string, assignmentData: UpdateHostAssignmentRequest): Promise<HostAssignment> {
+    const response = await api.put<HostAssignment>(`/v1/host-assignments/${assignmentId}`, assignmentData);
+    return response.data;
+  }
+
+  async deleteHostAssignment(assignmentId: string): Promise<{ message: string; deleted_assignment_id: string }> {
+    const response = await api.delete<{ message: string; deleted_assignment_id: string }>(`/v1/host-assignments/${assignmentId}`);
+    return response.data;
+  }
+}
+
+export class HostDashboardService extends BaseService {
+  constructor() {
+    super('/v1/hosts');
+  }
+
+  // Dashboard-specific methods
+  
+  async getDashboardHosts(eventId: string): Promise<DashboardHostsResponse> {
+    // Since there's no dedicated dashboard endpoint, we'll create the structure from existing endpoints
+    const hostsResponse = await hostService.getHostsByEvent(eventId);
+    const dailySchedule: HostDailySchedule[] = [];
+    
+    // For now, we'll create a single day structure since the API only provides hosts by event
+    // In the future, you might want to create a dedicated dashboard endpoint
+    if (hostsResponse.hosts.length > 0) {
+      // Get event days from the event service (you'll need to integrate this)
+      // For now, create a mock daily schedule
+      hostsResponse.hosts.forEach((host: Host, index: number) => {
+        const hostWithAssignments: HostWithAssignments = {
+          ...host,
+          assignments: [], // We'll fetch these separately if needed
+          current_capacity: 0, // This would need to be calculated from assignments
+        };
+        
+        // Create a single day entry for all hosts
+        if (index === 0) {
+          dailySchedule.push({
+            event_day_id: `day-1-${eventId}`,
+            event_date: new Date().toISOString().split('T')[0], // Today's date as fallback
+            location_name: 'Event Location', // Fallback location
+            hosts: hostWithAssignments ? [hostWithAssignments] : [],
+            daily_notes: '',
+          });
+        } else if (dailySchedule.length > 0) {
+          dailySchedule[0].hosts.push(hostWithAssignments);
+        }
+      });
+    }
+    
+    return {
+      event_id: eventId,
+      daily_schedule: dailySchedule,
+    };
+  }
+
+  async bulkUploadHosts(eventId: string, csvFile: File): Promise<HostBulkUploadResponse> {
+    const formData = new FormData();
+    formData.append('file', csvFile);
+    
+    const response = await api.post(`/v1/hosts/upload-csv/${eventId}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  }
+}
+
+// Export services as singletons (similar to existing pattern)
+export const hostService = new HostService();
+export const hostAssignmentService = new HostAssignmentService();
+export const hostDashboardService = new HostDashboardService();

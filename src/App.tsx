@@ -8,6 +8,7 @@ import RegistrationMembers from './pages/RegistrationMembers'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Participants from './pages/Participants'
+import Hosts from './pages/Hosts'
 import ScreenRegister from './pages/participant/ScreenRegister'
 import ScreenPreferences from './pages/participant/ScreenPreferences'
 import ScreenVehicle from './pages/participant/ScreenVehicle'
@@ -34,6 +35,7 @@ function App() {
                 <Route path="/" element={<Home/>}/>
                 <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
                 <Route path="/participants" element={<ProtectedRoute><Participants /></ProtectedRoute>} />
+                <Route path="/hosts" element={<ProtectedRoute><Hosts /></ProtectedRoute>} />
                 <Route path="/hotel-information" element={<HotelInformation />} />
                 <Route path="/registration-members" element={<RegistrationMembers />} />
                 <Route path="/participant/register" element={<ProtectedParticipantRoute><ScreenRegister /></ProtectedParticipantRoute>} />

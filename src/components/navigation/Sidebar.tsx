@@ -12,6 +12,7 @@ interface NavItem {
 const navigationItems: NavItem[] = [
   { id: 'dashboard', label: 'Dashboard', icon: '🏠', path: '/dashboard' },
   { id: 'participants', label: 'Participants', icon: '👥', path: '/participants' },
+  { id: 'hosts', label: 'Hosts', icon: '🏡', path: '/hosts' },
 ];
 
 interface SidebarProps {

@@ -9,6 +9,7 @@ import events from './eventSlice';
 import user from './userSlice';
 import dashboard from './dashboardSlice';
 import exportSlice from './exportSlice';
+import hosts from './hostSlice';
 
 const persistConfig = {
   key: 'root',
@@ -22,6 +23,7 @@ const rootReducer = combineReducers({
   user,
   dashboard,
   export: exportSlice,
+  hosts,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
