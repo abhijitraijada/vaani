@@ -54,6 +54,10 @@ export interface AssignmentsQueryParams {
 }
 
 export class AssignmentService extends BaseService {
+  constructor() {
+    super('/api/v1/host-assignments');
+  }
+
   /**
    * Create multiple host assignments in a single request
    * @param data - Bulk assignment request data

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Card } from '../primitives/Layout';
 import { Heading, Text } from '../primitives/Typography';
 import { Button } from '../primitives/Button';
 import { Icon } from '../primitives/Icon';
