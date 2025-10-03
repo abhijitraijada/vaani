@@ -1,4 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from '../../store';
+import { fetchHostsDashboard } from '../../store/hostSlice';
 import { cn } from '../../lib/cn';
 import { Text } from '../primitives/Typography';
 
@@ -22,8 +24,14 @@ interface SidebarProps {
 export function Sidebar({ className }: SidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useAppDispatch();
+  const { activeEvent } = useAppSelector((state) => state.events);
 
   const handleNavClick = (path: string) => {
+    // If clicking on hosts, refresh the hosts data
+    if (path === '/hosts' && activeEvent?.id) {
+      dispatch(fetchHostsDashboard(activeEvent.id));
+    }
     navigate(path);
   };
 

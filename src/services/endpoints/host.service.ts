@@ -122,8 +122,8 @@ export class HostDashboardService extends BaseService {
     hostsResponse.event_days.forEach((eventDay: HostEventDay) => {
       const hostsWithAssignments: HostWithAssignments[] = eventDay.hosts.map((host: Host) => ({
         ...host,
-        assignments: [], // We'll fetch these separately if needed
-        current_capacity: 0, // This would need to be calculated from assignments
+        assignments: [], // Legacy field - we now use assigned_participants
+        // current_capacity and available_capacity are now part of Host interface
       }));
       
       dailySchedule.push({

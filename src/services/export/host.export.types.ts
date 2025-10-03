@@ -1,7 +1,7 @@
 import type { HostWithAssignments } from '../endpoints/host.types';
 
 export interface HostExportField {
-  key: keyof HostWithAssignments | 'event_day' | 'location_name' | 'capacity_utilization';
+  key: keyof HostWithAssignments | 'event_day' | 'location_name';
   label: string;
   category: 'basic' | 'accommodation' | 'preferences' | 'assignments' | 'additional';
   required?: boolean;
@@ -27,7 +27,6 @@ export interface ExportHostData extends Omit<HostWithAssignments, 'id' | 'create
   location_name: string;
   day_number: number;
   row_number: number;
-  capacity_utilization: number;
 }
 
 export interface ExportHostSummaryData {
@@ -42,12 +41,6 @@ export interface ExportHostSummaryData {
     toilet_facilities: Record<string, number>;
     gender_preference: Record<string, number>;
   };
-  capacity_utilization: {
-    fully_utilized: number;
-    partially_utilized: number;
-    available: number;
-    over_capacity: number;
-  };
   average_capacity_per_host: number;
 }
 
@@ -58,7 +51,6 @@ export const HOST_EXPORT_FIELDS: HostExportField[] = [
   { key: 'place_name', label: 'Place Name', category: 'basic', required: true },
   { key: 'max_participants', label: 'Max Capacity', category: 'basic', required: true },
   { key: 'current_capacity', label: 'Current Capacity', category: 'basic', required: true },
-  { key: 'capacity_utilization', label: 'Capacity Utilization %', category: 'basic' },
   
   // Accommodation Details
   { key: 'facilities_description', label: 'Facilities Description', category: 'accommodation' },

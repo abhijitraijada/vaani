@@ -1,20 +1,26 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '../primitives/Button';
 import { Heading, Text } from '../primitives/Typography';
 import { cn } from '../../lib/cn';
-import type { CreateHostRequest, ToiletFacilities, GenderPreference } from '../../services/endpoints/host.types';
+import type { CreateHostRequest, UpdateHostRequest, ToiletFacilities, GenderPreference, HostWithAssignments } from '../../services/endpoints/host.types';
 
 interface AddHostModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (hostData: CreateHostRequest) => Promise<void>;
+  onSubmit?: (hostData: CreateHostRequest) => Promise<void>;
+  onUpdate?: (hostId: string, hostData: UpdateHostRequest) => Promise<void>;
   eventId: string;
   eventDaysId?: string;
+  editHost?: HostWithAssignments | null;
   className?: string;
 }
 
-export function AddHostModal({ isOpen, onClose, onSubmit, eventId, eventDaysId, className }: AddHostModalProps) {
+export function AddHostModal({ isOpen, onClose, onSubmit, onUpdate, eventId, eventDaysId, editHost, className }: AddHostModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Determine if we're in edit mode
+  const isEditMode = !!editHost;
+  
   const [formData, setFormData] = useState<CreateHostRequest>({
     event_id: eventId,
     event_days_id: eventDaysId || '',
@@ -27,6 +33,36 @@ export function AddHostModal({ isOpen, onClose, onSubmit, eventId, eventDaysId, 
     facilities_description: ''
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Prefill form data when in edit mode
+  useEffect(() => {
+    if (isEditMode && editHost) {
+      setFormData({
+        event_id: editHost.event_id,
+        event_days_id: editHost.event_days_id,
+        name: editHost.name,
+        phone_no: editHost.phone_no,
+        place_name: editHost.place_name,
+        max_participants: editHost.max_participants,
+        toilet_facilities: editHost.toilet_facilities,
+        gender_preference: editHost.gender_preference,
+        facilities_description: editHost.facilities_description
+      });
+    } else {
+      // Reset to default values for add mode
+      setFormData({
+        event_id: eventId,
+        event_days_id: eventDaysId || '',
+        name: '',
+        phone_no: 0,
+        place_name: '',
+        max_participants: 1,
+        toilet_facilities: 'both',
+        gender_preference: 'both',
+        facilities_description: ''
+      });
+    }
+  }, [isEditMode, editHost, eventId, eventDaysId]);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -68,10 +104,28 @@ export function AddHostModal({ isOpen, onClose, onSubmit, eventId, eventDaysId, 
     
     setIsSubmitting(true);
     try {
-      await onSubmit(formData);
+      if (isEditMode && editHost && onUpdate) {
+        // Update existing host
+        const updateData: UpdateHostRequest = {
+          event_days_id: formData.event_days_id,
+          name: formData.name,
+          phone_no: formData.phone_no,
+          place_name: formData.place_name,
+          max_participants: formData.max_participants,
+          toilet_facilities: formData.toilet_facilities,
+          gender_preference: formData.gender_preference,
+          facilities_description: formData.facilities_description
+        };
+        await onUpdate(editHost.id, updateData);
+      } else {
+        // Create new host
+        if (onSubmit) {
+          await onSubmit(formData);
+        }
+      }
       handleClose();
     } catch (error) {
-      console.error('Failed to add host:', error);
+      console.error(`Failed to ${isEditMode ? 'update' : 'add'} host:`, error);
     } finally {
       setIsSubmitting(false);
     }
@@ -121,10 +175,10 @@ export function AddHostModal({ isOpen, onClose, onSubmit, eventId, eventDaysId, 
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <div>
             <Heading className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-              Add New Host
+              {isEditMode ? 'Edit Host' : 'Add New Host'}
             </Heading>
             <Text className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              Register a new host for event accommodation
+              {isEditMode ? 'Update host information' : 'Register a new host for event accommodation'}
             </Text>
           </div>
           <Button
@@ -296,7 +350,7 @@ export function AddHostModal({ isOpen, onClose, onSubmit, eventId, eventDaysId, 
                 loading={isSubmitting}
                 disabled={isSubmitting}
               >
-                {isSubmitting ? "Adding Host..." : "Add Host"}
+                {isSubmitting ? (isEditMode ? "Updating Host..." : "Adding Host...") : (isEditMode ? "Update Host" : "Add Host")}
               </Button>
             </div>
           </div>

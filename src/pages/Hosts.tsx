@@ -11,10 +11,12 @@ import { HostsTable } from '../components/dashboard/HostsTable';
 import { HostBulkUpload } from '../components/dashboard/HostBulkUpload';
 import { DateTabs } from '../components/dashboard/DateTabs';
 import { hostService } from '../services/endpoints/host.service';
-import type { CreateHostRequest } from '../services/endpoints/host.types';
+import type { CreateHostRequest, HostWithAssignments } from '../services/endpoints/host.types';
+import { useNavigate } from 'react-router-dom';
 
 export default function Hosts() {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { 
     hostsData, 
     selectedDay, 
@@ -25,15 +27,17 @@ export default function Hosts() {
 
   const pageSize = 50; // Fixed page size
   const [isAddHostModalOpen, setIsAddHostModalOpen] = useState(false);
+  const [isEditHostModalOpen, setIsEditHostModalOpen] = useState(false);
+  const [editingHost, setEditingHost] = useState<HostWithAssignments | null>(null);
 
   // Get the active event ID from the events state
   const { activeEvent } = useAppSelector((state) => state.events);
 
   useEffect(() => {
-    if (activeEvent?.id && !hostsData) {
+    if (activeEvent?.id) {
       dispatch(fetchHostsDashboard(activeEvent.id));
     }
-  }, [dispatch, activeEvent?.id, hostsData]);
+  }, [dispatch, activeEvent?.id]);
 
   // Add admin-layout class to root element for full-width layout
   useEffect(() => {
@@ -101,6 +105,63 @@ export default function Hosts() {
     }
   };
 
+  const handleEditHost = (host: HostWithAssignments) => {
+    setEditingHost(host);
+    setIsEditHostModalOpen(true);
+  };
+
+  const handleDeleteHost = async (hostId: string) => {
+    if (!confirm('Are you sure you want to delete this host? This action cannot be undone.')) {
+      return;
+    }
+    
+    try {
+      await hostService.deleteHost(hostId);
+      
+      // Refresh the dashboard data
+      if (activeEvent?.id) {
+        dispatch(fetchHostsDashboard(activeEvent.id));
+      }
+      
+      console.log('Host deleted successfully!');
+    } catch (error) {
+      console.error('Failed to delete host:', error);
+      console.error('Failed to delete host. Please try again.');
+    }
+  };
+
+  const handleUpdateHost = async (hostId: string, hostData: any) => {
+    try {
+      // Call the API to update the host
+      await hostService.updateHost(hostId, hostData);
+      
+      // Refresh the dashboard data
+      if (activeEvent?.id) {
+        dispatch(fetchHostsDashboard(activeEvent.id));
+      }
+      
+      // Show success message
+      console.log('Host updated successfully!');
+      
+      // Close the modal
+      setIsEditHostModalOpen(false);
+      setEditingHost(null);
+    } catch (error) {
+      console.error('Failed to update host:', error);
+      console.error('Failed to update host. Please try again.');
+    }
+  };
+
+  const handleAddParticipants = (host: HostWithAssignments) => {
+    navigate(`/hosts/${host.id}/add-participants`);
+  };
+
+  const handleHostDataRefresh = () => {
+    // Refresh the hosts dashboard data
+    if (activeEvent?.id) {
+      dispatch(fetchHostsDashboard(activeEvent.id));
+    }
+  };
 
   if (isLoading) {
     return (
@@ -250,6 +311,10 @@ export default function Hosts() {
                 hosts={selectedDayData.hosts}
                 onPageChange={handlePageChange}
                 onAddHost={handleAddHost}
+                onEditHost={handleEditHost}
+                onDeleteHost={handleDeleteHost}
+                onAddParticipants={handleAddParticipants}
+                onHostDataRefresh={handleHostDataRefresh}
                 availableDays={hostsData.daily_schedule.map(day => ({
                   id: day.event_day_id,
                   date: day.event_date,
@@ -283,6 +348,18 @@ export default function Hosts() {
         onSubmit={handleAddHostSubmit}
         eventId={activeEvent?.id || ''}
         eventDaysId={selectedDay || undefined}
+      />
+
+      {/* Edit Host Modal */}
+      <AddHostModal
+        isOpen={isEditHostModalOpen}
+        onClose={() => {
+          setIsEditHostModalOpen(false);
+          setEditingHost(null);
+        }}
+        onUpdate={handleUpdateHost}
+        eventId={activeEvent?.id || ''}
+        editHost={editingHost}
       />
     </div>
   );

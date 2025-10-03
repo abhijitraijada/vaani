@@ -3,6 +3,20 @@
 export type ToiletFacilities = 'indian' | 'western' | 'both';
 export type GenderPreference = 'male' | 'female' | 'both';
 
+// Assigned participant interface for detailed participant data
+export interface AssignedParticipant {
+  id: string;
+  assignment_id: string;
+  name: string;
+  phone_number: string;
+  age: number;
+  gender: 'M' | 'F';
+  city: string;
+  special_requirements: string | null;
+  assignment_notes: string | null;
+  assigned_at: string;
+}
+
 export interface Host {
   id: string;
   event_id: string;
@@ -15,6 +29,9 @@ export interface Host {
   toilet_facilities: ToiletFacilities;
   gender_preference: GenderPreference;
   facilities_description: string;
+  assigned_participants: AssignedParticipant[];
+  current_capacity: number;
+  available_capacity: number;
   created_at: string;
   updated_at: string;
 }
@@ -126,7 +143,7 @@ export interface HostBulkUploadResponse {
 
 export interface HostWithAssignments extends Host {
   assignments: HostAssignment[];
-  current_capacity: number;
+  // current_capacity and available_capacity are now part of Host interface
 }
 
 // Dashboard-specific types for hosts

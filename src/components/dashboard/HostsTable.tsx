@@ -3,7 +3,10 @@ import type { HostWithAssignments } from '../../services/endpoints/host.types';
 import { Card } from '../primitives/Layout';
 import { Heading } from '../primitives/Typography';
 import { Button } from '../primitives/Button';
+import { Icon } from '../primitives/Icon';
+import { Tooltip } from '../primitives/Tooltip';
 import { ExportButton } from '../export';
+import { HostParticipantsModal } from './HostParticipantsModal';
 import { cn } from '../../lib/cn';
 import type { ExportOptions } from '../../services/export/export.types';
 
@@ -12,6 +15,10 @@ interface HostsTableProps {
   onPageChange: (page: number) => void;
   onExport?: (options: ExportOptions) => Promise<void>;
   onAddHost?: () => void;
+  onEditHost?: (host: HostWithAssignments) => void;
+  onDeleteHost?: (hostId: string) => void;
+  onAddParticipants?: (host: HostWithAssignments) => void;
+  onHostDataRefresh?: () => void;
   availableDays?: Array<{
     id: string;
     date: string;
@@ -29,15 +36,23 @@ export function HostsTable({
   onPageChange, 
   onExport,
   onAddHost,
+  onEditHost,
+  onDeleteHost,
+  onAddParticipants,
+  onHostDataRefresh,
   availableDays,
   className 
 }: HostsTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortConfig, setSortConfig] = useState<{ key: 'max_participants' | 'capacity_utilization' | null; direction: 'asc' | 'desc' }>({ key: null, direction: 'asc' });
+  const [sortConfig, setSortConfig] = useState<{ key: 'max_participants' | null; direction: 'asc' | 'desc' }>({ key: null, direction: 'asc' });
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 50;
+  
+  // Modal state
+  const [selectedHost, setSelectedHost] = useState<HostWithAssignments | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleSort = (key: 'max_participants' | 'capacity_utilization') => {
+  const handleSort = (key: 'max_participants') => {
     setSortConfig(prevConfig => {
       // If clicking the same key, cycle through: asc -> desc -> no sort
       if (prevConfig.key === key) {
@@ -70,12 +85,6 @@ export function HostsTable({
           return sortConfig.direction === 'asc' 
             ? a.max_participants - b.max_participants 
             : b.max_participants - a.max_participants;
-        } else if (sortConfig.key === 'capacity_utilization') {
-          const aUtilization = a.current_capacity / a.max_participants;
-          const bUtilization = b.current_capacity / b.max_participants;
-          return sortConfig.direction === 'asc' 
-            ? aUtilization - bUtilization 
-            : bUtilization - aUtilization;
         }
         return 0;
       });
@@ -99,6 +108,21 @@ export function HostsTable({
   const handlePageChangeInternal = (page: number) => {
     setCurrentPage(page);
     onPageChange(page);
+  };
+
+  const handleRowClick = (host: HostWithAssignments) => {
+    setSelectedHost(host);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedHost(null);
+  };
+
+  const handleAssignmentDeleted = () => {
+    // Trigger host data refresh in parent component
+    onHostDataRefresh?.();
   };
 
   // Reset to page 1 when hosts data changes (e.g., switching days)
@@ -195,26 +219,18 @@ export function HostsTable({
                   )}
                 </div>
               </th>
-              <th 
-                className="text-left py-3 px-4 font-medium text-gray-900 dark:text-gray-100 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 select-none"
-                onClick={() => handleSort('capacity_utilization')}
-              >
-                <div className="flex items-center gap-1">
-                  Utilization
-                  {sortConfig.key === 'capacity_utilization' && (
-                    <span className="text-xs">
-                      {sortConfig.direction === 'asc' ? '↑' : '↓'}
-                    </span>
-                  )}
-                </div>
-              </th>
               <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-gray-100">Preferences</th>
               <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-gray-100">Facilities</th>
+              <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-gray-100">Actions</th>
             </tr>
           </thead>
           <tbody>
             {paginatedHosts.map((host, index) => (
-              <tr key={host.id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800">
+              <tr 
+                key={host.id} 
+                className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors duration-200"
+                onClick={() => handleRowClick(host)}
+              >
                 <td className="py-4 px-4 text-left">
                   <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
                     {index + 1}
@@ -246,14 +262,10 @@ export function HostsTable({
                       Max: {host.max_participants}
                     </div>
                     <div className={`text-sm ${getCapacityColor(host.current_capacity, host.max_participants)}`}>
-                      Current: {host.current_capacity}
+                      Assigned: {host.current_capacity}
                     </div>
-                  </div>
-                </td>
-                <td className="py-4 px-4 text-left">
-                  <div className="text-sm">
-                    <div className={`font-medium ${getCapacityColor(host.current_capacity, host.max_participants)}`}>
-                      {Math.round((host.current_capacity / host.max_participants) * 100)}%
+                    <div className="text-sm text-green-600 dark:text-green-400">
+                      Available: {host.available_capacity}
                     </div>
                   </div>
                 </td>
@@ -272,11 +284,56 @@ export function HostsTable({
                     <div className="truncate">
                       {host.facilities_description || 'No description'}
                     </div>
-                    {host.assignments.length > 0 && (
+                    {host.assigned_participants.length > 0 && (
                       <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                        {host.assignments.length} assigned
+                        {host.assigned_participants.length} participant{host.assigned_participants.length !== 1 ? 's' : ''} assigned
                       </div>
                     )}
+                  </div>
+                </td>
+                <td className="py-4 px-4 text-left">
+                  <div className="flex gap-1">
+                    <Tooltip label="Delete Host">
+                      <Button
+                        variant="icon"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteHost?.(host.id);
+                        }}
+                        className="w-8 h-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20"
+                      >
+                        <Icon name="trash" width={16} height={16} />
+                      </Button>
+                    </Tooltip>
+                    
+                    <Tooltip label="Edit Host">
+                      <Button
+                        variant="icon"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEditHost?.(host);
+                        }}
+                        className="w-8 h-8 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/20"
+                      >
+                        <Icon name="pencil" width={16} height={16} />
+                      </Button>
+                    </Tooltip>
+                    
+                    <Tooltip label="Add Participants">
+                      <Button
+                        variant="icon"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onAddParticipants?.(host);
+                        }}
+                        className="w-8 h-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50 dark:text-green-400 dark:hover:text-green-300 dark:hover:bg-green-900/20"
+                      >
+                        <Icon name="user-plus" width={16} height={16} />
+                      </Button>
+                    </Tooltip>
                   </div>
                 </td>
               </tr>
@@ -330,6 +387,14 @@ export function HostsTable({
           </Button>
         </div>
       </div>
+
+      {/* Host Participants Modal */}
+      <HostParticipantsModal
+        host={selectedHost}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onAssignmentDeleted={handleAssignmentDeleted}
+      />
     </Card>
   );
 }
