@@ -44,6 +44,9 @@ export default function AddParticipants() {
   
   // Search state
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // Tab state for participant status filtering
+  const [activeTab, setActiveTab] = useState<'assignable' | 'other'>('assignable');
 
   // Get Redux data
   const { eventData } = useAppSelector((state) => state.dashboard);
@@ -407,6 +410,27 @@ export default function AddParticipants() {
     );
   };
 
+  // Filter participants by assignable status (registered and confirmed)
+  const filterByAssignableStatus = (participants: Participant[]) => {
+    return participants.filter(participant => 
+      participant.status === 'registered' || participant.status === 'confirmed'
+    );
+  };
+
+  // Filter participants by other status (waiting and cancelled, sorted with waiting first)
+  const filterByOtherStatus = (participants: Participant[]) => {
+    return participants
+      .filter(participant => 
+        participant.status === 'waiting' || participant.status === 'cancelled'
+      )
+      .sort((a, b) => {
+        // Sort waiting participants first, then cancelled
+        if (a.status === 'waiting' && b.status === 'cancelled') return -1;
+        if (a.status === 'cancelled' && b.status === 'waiting') return 1;
+        return 0;
+      });
+  };
+
   // Search functionality
   const matchesSearch = (participant: Participant, searchTerm: string): boolean => {
     if (!searchTerm.trim()) return true;
@@ -540,8 +564,12 @@ export default function AddParticipants() {
     return null;
   }
 
-  // Filter out already assigned participants
-  const availableParticipants = filterAssignedParticipants(hostEventDay.participants);
+  // Filter participants by status based on active tab, then filter out already assigned ones
+  const statusFilteredParticipants = activeTab === 'assignable' 
+    ? filterByAssignableStatus(hostEventDay.participants)
+    : filterByOtherStatus(hostEventDay.participants);
+  
+  const availableParticipants = filterAssignedParticipants(statusFilteredParticipants);
   
   // Classify participants by group visibility (only available participants)
   const { visibleGroups, hiddenGroups } = classifyParticipantsByGroup(availableParticipants, host);
@@ -554,8 +582,8 @@ export default function AddParticipants() {
   const totalVisibleParticipants = Object.values(filteredVisibleGroups).flat().length;
   const totalHiddenParticipants = Object.values(filteredHiddenGroups).flat().length;
   
-  // Calculate assignment statistics
-  const totalParticipants = hostEventDay.participants.length;
+  // Calculate assignment statistics based on active tab
+  const totalParticipants = statusFilteredParticipants.length;
   const assignedParticipantsCount = totalParticipants - availableParticipants.length;
   const availableParticipantsCount = availableParticipants.length;
 
@@ -604,6 +632,38 @@ export default function AddParticipants() {
               </div>
             </div>
 
+          </Card>
+
+          {/* Participant Status Tabs */}
+          <Card className="p-6">
+            <div className="flex space-x-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
+              <button
+                onClick={() => {
+                  setActiveTab('assignable');
+                  setSelectedParticipants({}); // Clear selections when switching tabs
+                }}
+                className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
+                  activeTab === 'assignable'
+                    ? 'bg-white dark:bg-gray-700 text-purple-600 dark:text-purple-400 shadow-sm'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                }`}
+              >
+                Assignable Participants ({filterByAssignableStatus(hostEventDay.participants).length})
+              </button>
+              <button
+                onClick={() => {
+                  setActiveTab('other');
+                  setSelectedParticipants({}); // Clear selections when switching tabs
+                }}
+                className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
+                  activeTab === 'other'
+                    ? 'bg-white dark:bg-gray-700 text-purple-600 dark:text-purple-400 shadow-sm'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                }`}
+              >
+                Other Participants ({filterByOtherStatus(hostEventDay.participants).length})
+              </button>
+            </div>
           </Card>
 
           {/* Participant Assignment Statistics */}
@@ -712,7 +772,7 @@ export default function AddParticipants() {
           )}
 
           {/* Participant Assignment Section */}
-          {host.available_capacity > 0 ? (
+          {activeTab === 'assignable' && host.available_capacity > 0 ? (
             <Card className="p-6">
               <Heading className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
                 Assign Participants
@@ -839,26 +899,35 @@ export default function AddParticipants() {
                                 ? 'border-green-200 dark:border-green-700' 
                                 : 'border-orange-200 dark:border-orange-700'
                             }`}>
-                              <div className="flex items-start justify-between mb-2">
-                                <div className="flex-1">
-                                  <Text className="font-medium text-gray-900 dark:text-gray-100">
-                                    {participant.name}
-                                  </Text>
-                                  <Text className="text-sm text-gray-600 dark:text-gray-400">
-                                    📞 {participant.phone_number}
-                                  </Text>
+                                <div className="flex items-start justify-between mb-2">
+                                  <div className="flex-1">
+                                    <Text className="font-medium text-gray-900 dark:text-gray-100">
+                                      {participant.name}
+                                    </Text>
+                                    <Text className="text-sm text-gray-600 dark:text-gray-400">
+                                      📞 {participant.phone_number}
+                                    </Text>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                      participant.status === 'registered' 
+                                        ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200'
+                                        : 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200'
+                                    }`}>
+                                      {participant.status}
+                                    </span>
+                                    <input 
+                                      type="checkbox" 
+                                      checked={selectedParticipants[participant.id] || false}
+                                      onChange={(e) => handleParticipantSelect(participant.id, e.target.checked)}
+                                      className={`w-4 h-4 border-gray-300 rounded focus:ring-2 ${
+                                        isCompatible 
+                                          ? 'text-green-600 focus:ring-green-500' 
+                                          : 'text-orange-600 focus:ring-orange-500'
+                                      }`}
+                                    />
+                                  </div>
                                 </div>
-                                <input 
-                                  type="checkbox" 
-                                  checked={selectedParticipants[participant.id] || false}
-                                  onChange={(e) => handleParticipantSelect(participant.id, e.target.checked)}
-                                  className={`w-4 h-4 border-gray-300 rounded focus:ring-2 ${
-                                    isCompatible 
-                                      ? 'text-green-600 focus:ring-green-500' 
-                                      : 'text-orange-600 focus:ring-orange-500'
-                                  }`}
-                                />
-                              </div>
                               <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
                                 <div>Age: {participant.age} | Gender: {participant.gender}</div>
                                 <div>Toilet: {participant.toilet_preference}</div>
@@ -957,12 +1026,21 @@ export default function AddParticipants() {
                                     📞 {participant.phone_number}
                                   </Text>
                                 </div>
-                                <input 
-                                  type="checkbox" 
-                                  checked={selectedParticipants[participant.id] || false}
-                                  onChange={(e) => handleParticipantSelect(participant.id, e.target.checked)}
-                                  className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-                                />
+                                <div className="flex items-center gap-2">
+                                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                    participant.status === 'registered' 
+                                      ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200'
+                                      : 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200'
+                                  }`}>
+                                    {participant.status}
+                                  </span>
+                                  <input 
+                                    type="checkbox" 
+                                    checked={selectedParticipants[participant.id] || false}
+                                    onChange={(e) => handleParticipantSelect(participant.id, e.target.checked)}
+                                    className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                                  />
+                                </div>
                               </div>
                               <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
                                 <div>Age: {participant.age} | Gender: {participant.gender}</div>
@@ -1034,7 +1112,7 @@ export default function AddParticipants() {
               </div>
             ) : null}
             </Card>
-          ) : (
+          ) : activeTab === 'assignable' ? (
             <Card className="p-6">
               <div className="text-center py-12">
                 <Icon name="check" width={64} height={64} className="text-green-500 mx-auto mb-4" />
@@ -1046,12 +1124,304 @@ export default function AddParticipants() {
                 </Text>
               </div>
             </Card>
+          ) : (
+            <Card className="p-6">
+              <Heading className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                Other Participants
+              </Heading>
+              <Text className="text-gray-600 dark:text-gray-400 mb-4">
+                These participants have 'waiting' or 'cancelled' status and cannot be assigned to hosts.
+              </Text>
+              
+              {/* Host Preferences Display */}
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 mb-6">
+                <Text className="text-sm text-gray-600 dark:text-gray-400">
+                  <span className="font-medium">Host Preferences:</span> 
+                  Toilet: <span className="font-medium">{host.toilet_facilities}</span> | 
+                  Gender: <span className="font-medium">{host.gender_preference}</span>
+                </Text>
+              </div>
+              
+              {/* Search Bar */}
+              <div className="mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 relative">
+                    <input
+                      type="text"
+                      placeholder="Search participants by name, phone, city, toilet preference..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full px-4 py-2 pl-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100"
+                    />
+                    <Icon 
+                      name="search" 
+                      width={16} 
+                      height={16} 
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    />
+                  </div>
+                  {searchTerm && (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => setSearchTerm('')}
+                      className="px-3"
+                    >
+                      Clear
+                    </Button>
+                  )}
+                </div>
+                
+                {/* Search Results Count */}
+                {searchTerm && (
+                  <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                    {Object.keys(filteredVisibleGroups).length + Object.keys(filteredHiddenGroups).length > 0 ? (
+                      <span>
+                        Showing {Object.keys(filteredVisibleGroups).length + Object.keys(filteredHiddenGroups).length} groups with matching participants
+                      </span>
+                    ) : (
+                      <span className="text-orange-600 dark:text-orange-400">
+                        No groups found matching your search
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+              
+              {/* Available Groups (Groups with at least one compatible participant) */}
+              {Object.keys(filteredVisibleGroups).length > 0 && (
+                <div className="space-y-6 mb-8">
+                  <div className="flex items-center gap-2">
+                    <Icon name="check" width={20} height={20} className="text-green-600" />
+                    <Heading className="text-lg font-semibold text-green-600 dark:text-green-400">
+                      Available Groups ({Object.keys(filteredVisibleGroups).length} groups, {totalVisibleParticipants} participants)
+                    </Heading>
+                  </div>
+                  
+                  {Object.entries(filteredVisibleGroups).map(([groupId, participants]) => {
+                    const selectedCount = getSelectedCountInGroup(participants);
+                    const isAllSelected = selectedCount === participants.length;
+                    const hasSelection = selectedCount > 0;
+                    
+                    // Count incompatible within this group
+                    const incompatibleInGroup = participants.filter(p => (p as ParticipantWithCompatibility).incompatibilityReason).length;
+                    
+                    return (
+                      <div key={groupId} className="border border-green-200 dark:border-green-800 rounded-lg p-4 bg-green-50 dark:bg-green-900/20">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            <Heading className="text-md font-medium text-green-800 dark:text-green-200">
+                              Group {groupId} ({participants.length} participants)
+                            </Heading>
+                            {hasSelection && (
+                              <span className="text-sm text-green-600">
+                                ({selectedCount} selected)
+                              </span>
+                            )}
+                            {incompatibleInGroup > 0 && (
+                              <span className="text-xs text-orange-600 bg-orange-100 dark:bg-orange-900/40 px-2 py-1 rounded">
+                                {incompatibleInGroup} incompatible
+                              </span>
+                            )}
+                          </div>
+                          <Button 
+                            variant="secondary" 
+                            size="sm" 
+                            className="text-green-600 hover:text-green-700"
+                            onClick={() => handleGroupAssign(participants)}
+                          >
+                            {isAllSelected ? 'Deselect All' : 'Select All'}
+                          </Button>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                          {participants.map((participant) => {
+                            const participantWithCompat = participant as ParticipantWithCompatibility;
+                            const isCompatible = !participantWithCompat.incompatibilityReason;
+                            const incompatibilityReason = participantWithCompat.incompatibilityReason;
+                            
+                            return (
+                              <div key={participant.id} className={`bg-white dark:bg-gray-800 rounded-lg p-3 border ${
+                                isCompatible 
+                                  ? 'border-green-200 dark:border-green-700' 
+                                  : 'border-orange-200 dark:border-orange-700'
+                              }`}>
+                                <div className="flex items-start justify-between mb-2">
+                                  <div className="flex-1">
+                                    <Text className="font-medium text-gray-900 dark:text-gray-100">
+                                      {participant.name}
+                                    </Text>
+                                    <Text className="text-sm text-gray-600 dark:text-gray-400">
+                                      📞 {participant.phone_number}
+                                    </Text>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                      participant.status === 'waiting' 
+                                        ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-200'
+                                        : 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200'
+                                    }`}>
+                                      {participant.status}
+                                    </span>
+                                  </div>
+                                </div>
+                                <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
+                                  <div>Age: {participant.age} | Gender: {participant.gender}</div>
+                                  <div>Toilet: {participant.toilet_preference}</div>
+                                  {incompatibilityReason && (
+                                    <div className="text-orange-600 font-medium">⚠️ {incompatibilityReason}</div>
+                                  )}
+                                  {participant.special_requirements && (
+                                    <div className="text-orange-600">⚠️ {participant.special_requirements}</div>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Divider */}
+              {Object.keys(filteredHiddenGroups).length > 0 && (
+                <div className="relative my-8">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-300 dark:border-gray-600" />
+                  </div>
+                  <div className="relative flex justify-center">
+                    <div className="bg-white dark:bg-gray-900 px-4 py-2">
+                      <div className="flex items-center gap-2 text-orange-600 dark:text-orange-400">
+                        <Icon name="x" width={20} height={20} />
+                        <Text className="font-medium">
+                          Incompatible Groups ({Object.keys(filteredHiddenGroups).length} groups, {totalHiddenParticipants} participants)
+                        </Text>
+                      </div>
+                      <Text className="text-sm text-gray-500 dark:text-gray-400 text-center">
+                        These groups have no compatible participants
+                      </Text>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Incompatible Groups (Groups with no compatible participants) */}
+              {Object.keys(filteredHiddenGroups).length > 0 && (
+                <div className="space-y-6">
+                  <div className="flex items-center gap-2">
+                    <Icon name="x" width={20} height={20} className="text-orange-600" />
+                    <Heading className="text-lg font-semibold text-orange-600 dark:text-orange-400">
+                      Incompatible Groups ({Object.keys(filteredHiddenGroups).length} groups, {totalHiddenParticipants} participants)
+                    </Heading>
+                  </div>
+                  
+                  {Object.entries(filteredHiddenGroups).map(([groupId, participants]) => {
+                    const selectedCount = getSelectedCountInGroup(participants);
+                    const isAllSelected = selectedCount === participants.length;
+                    const hasSelection = selectedCount > 0;
+                    
+                    return (
+                      <div key={groupId} className="border border-orange-200 dark:border-orange-800 rounded-lg p-4 bg-orange-50 dark:bg-orange-900/20">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            <Heading className="text-md font-medium text-orange-800 dark:text-orange-200">
+                              Group {groupId} ({participants.length} participants)
+                            </Heading>
+                            {hasSelection && (
+                              <span className="text-sm text-orange-600">
+                                ({selectedCount} selected)
+                              </span>
+                            )}
+                            <div className="text-xs text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-900/40 px-2 py-1 rounded">
+                              ⚠️ All Incompatible
+                            </div>
+                          </div>
+                          <Button 
+                            variant="secondary" 
+                            size="sm" 
+                            className="text-orange-600 hover:text-orange-700"
+                            onClick={() => handleGroupAssign(participants)}
+                          >
+                            {isAllSelected ? 'Deselect All' : 'Select All'}
+                          </Button>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                          {participants.map((participant) => {
+                            const participantWithCompat = participant as ParticipantWithCompatibility;
+                            const incompatibilityReason = participantWithCompat.incompatibilityReason || 'Unknown';
+                            return (
+                              <div key={participant.id} className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-orange-200 dark:border-orange-700">
+                                <div className="flex items-start justify-between mb-2">
+                                  <div className="flex-1">
+                                    <Text className="font-medium text-gray-900 dark:text-gray-100">
+                                      {participant.name}
+                                    </Text>
+                                    <Text className="text-sm text-gray-600 dark:text-gray-400">
+                                      📞 {participant.phone_number}
+                                    </Text>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                      participant.status === 'waiting' 
+                                        ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-200'
+                                        : 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200'
+                                    }`}>
+                                      {participant.status}
+                                    </span>
+                                  </div>
+                                </div>
+                                <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
+                                  <div>Age: {participant.age} | Gender: {participant.gender}</div>
+                                  <div>Toilet: {participant.toilet_preference}</div>
+                                  <div className="text-orange-600 font-medium">⚠️ {incompatibilityReason}</div>
+                                  {participant.special_requirements && (
+                                    <div className="text-orange-600">⚠️ {participant.special_requirements}</div>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Empty State */}
+              {Object.keys(filteredVisibleGroups).length === 0 && Object.keys(filteredHiddenGroups).length === 0 && (
+                <div className="text-center py-12">
+                  <Icon name="user-plus" width={64} height={64} className="text-gray-400 mx-auto mb-4" />
+                  <Heading className="text-lg text-gray-500 dark:text-gray-400 mb-2">
+                    {searchTerm ? 'No Groups Found' : 'No Other Participants Available'}
+                  </Heading>
+                  <Text className="text-gray-400 dark:text-gray-500">
+                    {searchTerm 
+                      ? `No groups found matching "${searchTerm}". Try a different search term.`
+                      : 'No participants with waiting or cancelled status found for this event day.'
+                    }
+                  </Text>
+                </div>
+              )}
+
+              {/* Information Banner */}
+              <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <Text className="text-blue-600 dark:text-blue-400 text-sm">
+                  💡 These participants have 'waiting' or 'cancelled' status and cannot be assigned to hosts. 
+                  To assign participants, they must have 'registered' or 'confirmed' status. 
+                  Switch to the "Assignable Participants" tab to view and assign eligible participants.
+                </Text>
+              </div>
+            </Card>
           )}
         </div>
       </main>
 
       {/* Floating Assignment Button */}
-      {host.available_capacity > 0 && (Object.keys(filteredVisibleGroups).length > 0 || Object.keys(filteredHiddenGroups).length > 0) && Object.values(selectedParticipants).filter(Boolean).length > 0 && (
+      {activeTab === 'assignable' && host.available_capacity > 0 && (Object.keys(filteredVisibleGroups).length > 0 || Object.keys(filteredHiddenGroups).length > 0) && Object.values(selectedParticipants).filter(Boolean).length > 0 && (
         <div className="fixed bottom-6 right-6 z-40">
           <div className="flex flex-col items-end gap-3">
             {/* Selection Count Badge */}
