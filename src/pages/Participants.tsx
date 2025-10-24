@@ -200,6 +200,13 @@ export default function Participants() {
     }
   };
 
+  const handleAssignmentDeleted = () => {
+    // Refresh the dashboard data when an assignment is deleted
+    if (activeEvent?.id) {
+      dispatch(fetchEventDashboard(activeEvent.id));
+    }
+  };
+
   const handleStatusUpdate = async (participantId: string, status: MemberStatus) => {
     try {
       // Call the API to update participant status
@@ -371,6 +378,8 @@ export default function Participants() {
                 onExport={handleExport}
                 onAddParticipant={handleAddParticipant}
                 onStatusUpdate={handleStatusUpdate}
+                onAssignmentDeleted={handleAssignmentDeleted}
+                eventDayId={selectedDay || undefined}
                 availableDays={availableDays}
               />
             </div>

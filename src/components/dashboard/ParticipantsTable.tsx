@@ -5,6 +5,7 @@ import { Heading } from '../primitives/Typography';
 import { Button } from '../primitives/Button';
 import { ExportButton } from '../export';
 import { StatusDropdown } from './StatusDropdown';
+import { ParticipantDetailsModal } from './ParticipantDetailsModal';
 import { cn } from '../../lib/cn';
 import type { ExportOptions } from '../../services/export/export.types';
 import type { MemberStatus } from '../../services/endpoints/registration.types';
@@ -15,6 +16,8 @@ interface ParticipantsTableProps {
   onExport?: (options: ExportOptions) => Promise<void>;
   onAddParticipant?: () => void;
   onStatusUpdate?: (participantId: string, status: MemberStatus) => Promise<void>;
+  onAssignmentDeleted?: () => void;
+  eventDayId?: string;
   availableDays?: Array<{
     id: string;
     date: string;
@@ -32,6 +35,8 @@ export function ParticipantsTable({
   onExport,
   onAddParticipant,
   onStatusUpdate,
+  onAssignmentDeleted,
+  eventDayId,
   availableDays,
   className 
 }: ParticipantsTableProps) {
@@ -40,6 +45,10 @@ export function ParticipantsTable({
   const [currentPage, setCurrentPage] = useState(1);
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
   const pageSize = 50;
+
+  // Modal state
+  const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleSort = (key: 'age') => {
     setSortConfig(prevConfig => {
@@ -68,6 +77,21 @@ export function ParticipantsTable({
     } finally {
       setUpdatingStatus(null);
     }
+  };
+
+  const handleRowClick = (participant: Participant) => {
+    setSelectedParticipant(participant);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedParticipant(null);
+  };
+
+  const handleAssignmentDeleted = () => {
+    // Trigger data refresh in parent component
+    onAssignmentDeleted?.();
   };
 
   const filteredParticipants = useMemo(() => {
@@ -190,7 +214,11 @@ export function ParticipantsTable({
           </thead>
           <tbody>
             {paginatedParticipants.map((participant, index) => (
-              <tr key={participant.id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800">
+              <tr 
+                key={participant.id} 
+                className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors duration-200"
+                onClick={() => handleRowClick(participant)}
+              >
                 <td className="py-4 px-4 text-left">
                   <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
                     {index + 1}
@@ -302,6 +330,15 @@ export function ParticipantsTable({
           </Button>
         </div>
       </div>
+
+      {/* Participant Details Modal */}
+      <ParticipantDetailsModal
+        participant={selectedParticipant}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        eventDayId={eventDayId || ''}
+        onAssignmentDeleted={handleAssignmentDeleted}
+      />
     </Card>
   );
 }
