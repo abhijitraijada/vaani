@@ -212,6 +212,8 @@ export function ParticipantsTable({
               </th>
               <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-gray-100">Contact</th>
               <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-gray-100">Details</th>
+              <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-gray-100">Transportation</th>
+              <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-gray-100">Host Info</th>
               <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-gray-100">Status</th>
               <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-gray-100">Group</th>
             </tr>
@@ -262,6 +264,43 @@ export function ParticipantsTable({
                   </div>
                 </td>
                 <td className="py-4 px-4 text-left">
+                  <div className="text-sm">
+                    <div className="text-gray-900 dark:text-gray-100 capitalize">
+                      {participant.transportation_mode}
+                    </div>
+                    {participant.has_empty_seats && (
+                      <div className="text-green-600 dark:text-green-400 text-xs">
+                        {participant.available_seats_count} seats available
+                      </div>
+                    )}
+                  </div>
+                </td>
+                <td className="py-4 px-4 text-left">
+                  <div className="text-sm">
+                    {participant.host_name ? (
+                      <>
+                        <div className="text-gray-900 dark:text-gray-100 font-medium">
+                          {participant.host_name}
+                        </div>
+                        {participant.host_place_name && (
+                          <div className="text-gray-600 dark:text-gray-400 text-xs">
+                            {participant.host_place_name}
+                          </div>
+                        )}
+                        {participant.host_phone_no && (
+                          <div className="text-gray-500 dark:text-gray-500 text-xs">
+                            {participant.host_phone_no}
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="text-gray-400 dark:text-gray-500 italic">
+                        Not assigned
+                      </div>
+                    )}
+                  </div>
+                </td>
+                <td className="py-4 px-4 text-left">
                   <StatusDropdown
                     currentStatus={participant.status}
                     onStatusChange={(status) => handleStatusUpdate(participant.id, status)}
@@ -276,11 +315,6 @@ export function ParticipantsTable({
                     <div className="text-gray-500 dark:text-gray-400">
                       {participant.registration_type}
                     </div>
-                    {participant.has_empty_seats && (
-                      <div className="text-green-600 dark:text-green-400">
-                        {participant.available_seats_count} seats available
-                      </div>
-                    )}
                   </div>
                 </td>
               </tr>
