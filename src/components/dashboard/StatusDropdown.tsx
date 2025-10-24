@@ -52,11 +52,20 @@ export function StatusDropdown({
   const currentOption = statusOptions.find(option => option.value === currentStatus);
 
   return (
-    <div className={cn('relative', className)} ref={dropdownRef}>
+    <div 
+      className={cn('relative', className)} 
+      ref={dropdownRef}
+      onClick={(e) => e.stopPropagation()}
+    >
       {/* Current Status Badge - Clickable */}
       <button
         type="button"
-        onClick={() => !isLoading && setIsOpen(!isOpen)}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (!isLoading) {
+            setIsOpen(!isOpen);
+          }
+        }}
         disabled={isLoading}
         className={cn(
           'inline-flex items-center gap-1 transition-all duration-200',
@@ -91,7 +100,10 @@ export function StatusDropdown({
               <button
                 key={option.value}
                 type="button"
-                onClick={() => handleStatusSelect(option.value)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleStatusSelect(option.value);
+                }}
                 className={cn(
                   'w-full px-3 py-2 text-left text-sm transition-colors duration-200',
                   'hover:bg-gray-50 dark:hover:bg-gray-700',

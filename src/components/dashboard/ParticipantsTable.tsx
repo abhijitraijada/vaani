@@ -41,7 +41,8 @@ export function ParticipantsTable({
   className 
 }: ParticipantsTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortConfig, setSortConfig] = useState<{ key: 'age' | null; direction: 'asc' | 'desc' }>({ key: null, direction: 'asc' });
+  const [sortConfig, setSortConfig] = useState<{ key: 'age' | 'status' | null; direction: 'asc' | 'desc' }>({ key: null, direction: 'asc' });
+  const [statusSortPriority, setStatusSortPriority] = useState<MemberStatus | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
   const pageSize = 50;
@@ -50,19 +51,61 @@ export function ParticipantsTable({
   const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleSort = (key: 'age') => {
-    setSortConfig(prevConfig => {
-      // If clicking the same key, cycle through: asc -> desc -> no sort
-      if (prevConfig.key === key) {
-        if (prevConfig.direction === 'asc') {
-          return { key, direction: 'desc' };
-        } else if (prevConfig.direction === 'desc') {
-          return { key: null, direction: 'asc' }; // Remove sort on third click
+  // Define status order for sorting (ascending order)
+  const statusOrder: Record<MemberStatus, number> = {
+    'registered': 1,
+    'waiting': 2,
+    'confirmed': 3,
+    'cancelled': 4,
+  };
+
+  // Define status colors for visual indicators
+  const statusColors: Record<MemberStatus, string> = {
+    'registered': 'bg-blue-500',
+    'waiting': 'bg-yellow-500',
+    'confirmed': 'bg-green-500',
+    'cancelled': 'bg-red-500',
+  };
+
+  const handleSort = (key: 'age' | 'status') => {
+    if (key === 'age') {
+      // Age sorting remains the same: asc -> desc -> no sort
+      setSortConfig(prevConfig => {
+        if (prevConfig.key === 'age') {
+          if (prevConfig.direction === 'asc') {
+            return { key: 'age', direction: 'desc' };
+          } else if (prevConfig.direction === 'desc') {
+            return { key: null, direction: 'asc' }; // Remove sort on third click
+          }
         }
-      }
-      // If clicking a different key or no current sort, start with asc
-      return { key, direction: 'asc' };
-    });
+        return { key: 'age', direction: 'asc' };
+      });
+      setStatusSortPriority(null); // Clear status priority when sorting by age
+    } else if (key === 'status') {
+      // Custom status sorting: Confirmed -> Registered -> Waiting -> Cancelled -> No sort
+      const statusPriorityOrder: MemberStatus[] = ['confirmed', 'registered', 'waiting', 'cancelled'];
+      
+      setStatusSortPriority(prevPriority => {
+        if (prevPriority === null) {
+          // First click: Confirmed
+          setSortConfig({ key: 'status', direction: 'asc' });
+          return 'confirmed';
+        } else {
+          const currentIndex = statusPriorityOrder.indexOf(prevPriority);
+          const nextIndex = (currentIndex + 1) % statusPriorityOrder.length;
+          
+          if (nextIndex === 0) {
+            // Fifth click: Remove sort
+            setSortConfig({ key: null, direction: 'asc' });
+            return null;
+          } else {
+            // Next priority status
+            setSortConfig({ key: 'status', direction: 'asc' });
+            return statusPriorityOrder[nextIndex];
+          }
+        }
+      });
+    }
   };
 
   const handleStatusUpdate = async (participantId: string, status: MemberStatus) => {
@@ -116,13 +159,25 @@ export function ParticipantsTable({
           return sortConfig.direction === 'asc' 
             ? a.age - b.age 
             : b.age - a.age;
+        } else if (sortConfig.key === 'status' && statusSortPriority) {
+          // Custom priority-based sorting
+          if (a.status === statusSortPriority && b.status !== statusSortPriority) {
+            return -1; // Priority status comes first
+          } else if (a.status !== statusSortPriority && b.status === statusSortPriority) {
+            return 1; // Priority status comes first
+          } else {
+            // If both have same priority status or both don't have it, sort by status order
+            const aOrder = statusOrder[a.status];
+            const bOrder = statusOrder[b.status];
+            return aOrder - bOrder;
+          }
         }
         return 0;
       });
     }
 
     return filtered;
-  }, [participants, searchTerm, sortConfig]);
+  }, [participants, searchTerm, sortConfig, statusSortPriority]);
 
   // Paginate the filtered results
   const totalPages = Math.ceil(filteredParticipants.length / pageSize);
@@ -214,7 +269,23 @@ export function ParticipantsTable({
               <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-gray-100">Details</th>
               <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-gray-100">Transportation</th>
               <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-gray-100">Host Info</th>
-              <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-gray-100">Status</th>
+              <th 
+                className="text-left py-3 px-4 font-medium text-gray-900 dark:text-gray-100 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 select-none"
+                onClick={() => handleSort('status')}
+              >
+                <div className="flex items-center gap-1">
+                  Status
+                  {/* Status indicator - only show selected status dot */}
+                  {sortConfig.key === 'status' && statusSortPriority && (
+                    <div className="flex items-center gap-1 ml-2">
+                      <div
+                        className={`w-2 h-2 rounded-full ${statusColors[statusSortPriority]}`}
+                        title={`${statusSortPriority.charAt(0).toUpperCase() + statusSortPriority.slice(1)} first`}
+                      />
+                    </div>
+                  )}
+                </div>
+              </th>
               <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-gray-100">Group</th>
             </tr>
           </thead>
