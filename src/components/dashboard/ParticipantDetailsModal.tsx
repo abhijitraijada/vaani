@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { Participant } from '../../services/endpoints/dashboard.types';
 import type { Assignment } from '../../services/endpoints/assignment.service';
 import { Card } from '../primitives/Layout';
@@ -39,16 +39,21 @@ export function ParticipantDetailsModal({
   const [isDeleting, setIsDeleting] = useState(false);
   const toast = useToast();
 
-  if (!isOpen || !participant) return null;
-
-  // Fetch assignment data when modal opens
-  useEffect(() => {
-    if (isOpen && participant && eventDayId) {
-      fetchAssignmentData();
+  const fetchAssignmentData = useCallback(async () => {
+    if (!participant || !eventDayId) return;
+    
+    // Check if host details are already available from dashboard data
+    if (participant.host_name) {
+      setAssignmentData({ 
+        assignment: null,
+        hostName: participant.host_name,
+        hostPlace: participant.host_place_name,
+        hostPhone: participant.host_phone_no?.toString()
+      });
+      return;
     }
-  }, [isOpen, participant, eventDayId]);
-
-  const fetchAssignmentData = async () => {
+    
+    // Fallback to API call if host details not available
     setIsLoadingAssignment(true);
     try {
       const response = await assignmentService.getAllAssignments({
@@ -59,8 +64,6 @@ export function ParticipantDetailsModal({
 
       if (response.assignments.length > 0) {
         const assignment = response.assignments[0];
-        // For now, we'll just store the assignment without host details
-        // Host details would need to be fetched separately or from hosts dashboard
         setAssignmentData({ assignment });
       } else {
         setAssignmentData({ assignment: null });
@@ -71,7 +74,23 @@ export function ParticipantDetailsModal({
     } finally {
       setIsLoadingAssignment(false);
     }
-  };
+  }, [participant, eventDayId]);
+
+  // Fetch assignment data when modal opens
+  useEffect(() => {
+    if (isOpen && participant && eventDayId) {
+      fetchAssignmentData();
+    }
+  }, [isOpen, participant, eventDayId, fetchAssignmentData]);
+
+  // Early return after all hooks
+  if (!isOpen || !participant) return null;
+
+  // Defensive checks to prevent crashes
+  if (!participant.id || !eventDayId) {
+    console.error('ParticipantDetailsModal: Missing required data', { participant, eventDayId });
+    return null;
+  }
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString.includes('Z') ? dateString : dateString + 'Z');
@@ -108,13 +127,8 @@ export function ParticipantDetailsModal({
         description: `${participant.name} has been unassigned from their host`
       });
 
-      // Close the delete dialog
       setDeleteDialogOpen(false);
-      
-      // Notify parent component that an assignment was deleted
       onAssignmentDeleted?.();
-      
-      // Close the modal to refresh data
       onClose();
       
     } catch (error) {
@@ -355,40 +369,78 @@ export function ParticipantDetailsModal({
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-2"></div>
                   <Text className="text-gray-600 dark:text-gray-400">Loading assignment...</Text>
                 </div>
-              ) : assignmentData.assignment ? (
+              ) : (assignmentData.assignment || assignmentData.hostName) ? (
                 <div className="space-y-4">
                   <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
                     <div className="flex items-center justify-between">
-                      <div>
-                        <Text className="font-medium text-blue-900 dark:text-blue-100">
+                      <div className="flex-1">
+                        <Text className="font-medium text-blue-900 dark:text-blue-100 mb-2">
                           Assigned to Host
                         </Text>
-                        <Text className="text-sm text-blue-700 dark:text-blue-300">
-                          Assignment ID: {assignmentData.assignment.id.substring(0, 8)}...
-                        </Text>
-                        <Text className="text-sm text-blue-700 dark:text-blue-300">
-                          Assigned: {formatDate(assignmentData.assignment.created_at)}
-                        </Text>
+                        
+                        {/* Host details from dashboard data */}
+                        {assignmentData.hostName && (
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <Icon name="user-plus" width={16} height={16} className="text-blue-600 dark:text-blue-400" />
+                              <Text className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                                {assignmentData.hostName}
+                              </Text>
+                            </div>
+                            {assignmentData.hostPlace && (
+                              <div className="flex items-center gap-2">
+                                <Icon name="search" width={16} height={16} className="text-blue-600 dark:text-blue-400" />
+                                <Text className="text-sm text-blue-700 dark:text-blue-300">
+                                  {assignmentData.hostPlace}
+                                </Text>
+                              </div>
+                            )}
+                            {assignmentData.hostPhone && (
+                              <div className="flex items-center gap-2">
+                                <Icon name="check" width={16} height={16} className="text-blue-600 dark:text-blue-400" />
+                                <Text className="text-sm text-blue-700 dark:text-blue-300">
+                                  {assignmentData.hostPhone}
+                                </Text>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        
+                        {/* Assignment details from API (if available) */}
+                        {assignmentData.assignment && (
+                          <div className="mt-3 pt-3 border-t border-blue-200 dark:border-blue-700">
+                            <Text className="text-sm text-blue-700 dark:text-blue-300">
+                              Assignment ID: {assignmentData.assignment.id.substring(0, 8)}...
+                            </Text>
+                            <Text className="text-sm text-blue-700 dark:text-blue-300">
+                              Assigned: {formatDate(assignmentData.assignment.created_at)}
+                            </Text>
+                            {assignmentData.assignment.assignment_notes && (
+                              <div className="mt-2">
+                                <Text className="text-sm font-medium text-blue-800 dark:text-blue-200">Notes:</Text>
+                                <Text className="text-sm text-blue-700 dark:text-blue-300">
+                                  {assignmentData.assignment.assignment_notes}
+                                </Text>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
-                      <Tooltip label="Remove Assignment">
-                        <Button
-                          variant="icon"
-                          size="sm"
-                          onClick={handleDeleteAssignment}
-                          className="w-8 h-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20"
-                        >
-                          <Icon name="trash" width={16} height={16} />
-                        </Button>
-                      </Tooltip>
+                      
+                      {/* Delete button only available if we have assignment data from API */}
+                      {assignmentData.assignment && (
+                        <Tooltip label="Remove Assignment">
+                          <Button
+                            variant="icon"
+                            size="sm"
+                            onClick={handleDeleteAssignment}
+                            className="w-8 h-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20"
+                          >
+                            <Icon name="trash" width={16} height={16} />
+                          </Button>
+                        </Tooltip>
+                      )}
                     </div>
-                    {assignmentData.assignment.assignment_notes && (
-                      <div className="mt-2">
-                        <Text className="text-sm font-medium text-blue-800 dark:text-blue-200">Notes:</Text>
-                        <Text className="text-sm text-blue-700 dark:text-blue-300">
-                          {assignmentData.assignment.assignment_notes}
-                        </Text>
-                      </div>
-                    )}
                   </div>
                 </div>
               ) : (

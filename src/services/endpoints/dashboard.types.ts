@@ -24,6 +24,11 @@ export type Participant = {
   has_empty_seats: boolean;
   available_seats_count: number;
   notes: string | null;
+  // Host assignment details (if assigned)
+  host_id?: string;
+  host_name?: string;
+  host_place_name?: string;
+  host_phone_no?: number;
 };
 
 export type EventDay = {

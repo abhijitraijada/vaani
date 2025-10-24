@@ -80,8 +80,12 @@ export function ParticipantsTable({
   };
 
   const handleRowClick = (participant: Participant) => {
-    setSelectedParticipant(participant);
-    setIsModalOpen(true);
+    try {
+      setSelectedParticipant(participant);
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error('Error opening modal:', error);
+    }
   };
 
   const handleCloseModal = () => {
