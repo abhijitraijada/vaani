@@ -30,7 +30,7 @@ export function AddHostModal({ isOpen, onClose, onSubmit, onUpdate, eventId, eve
     max_participants: 1,
     toilet_facilities: 'both',
     gender_preference: 'both',
-    facilities_description: ''
+    facilities_description: 'Standard accommodation facilities'
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -59,7 +59,7 @@ export function AddHostModal({ isOpen, onClose, onSubmit, onUpdate, eventId, eve
         max_participants: 1,
         toilet_facilities: 'both',
         gender_preference: 'both',
-        facilities_description: ''
+        facilities_description: 'Standard accommodation facilities'
       });
     }
   }, [isEditMode, editHost, eventId, eventDaysId]);
@@ -85,10 +85,6 @@ export function AddHostModal({ isOpen, onClose, onSubmit, onUpdate, eventId, eve
     
     if (formData.max_participants < 1) {
       newErrors.max_participants = 'Maximum participants must be at least 1';
-    }
-    
-    if (!formData.facilities_description.trim()) {
-      newErrors.facilities_description = 'Facilities description is required';
     }
     
     setErrors(newErrors);
@@ -143,7 +139,7 @@ export function AddHostModal({ isOpen, onClose, onSubmit, onUpdate, eventId, eve
       max_participants: 1,
       toilet_facilities: 'both',
       gender_preference: 'both',
-      facilities_description: ''
+      facilities_description: 'Standard accommodation facilities'
     });
     setErrors({});
   };
@@ -317,7 +313,7 @@ export function AddHostModal({ isOpen, onClose, onSubmit, onUpdate, eventId, eve
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Facilities Description *
+                  Facilities Description
                 </label>
                 <textarea
                   value={formData.facilities_description}
@@ -326,7 +322,7 @@ export function AddHostModal({ isOpen, onClose, onSubmit, onUpdate, eventId, eve
                   className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
                     errors.facilities_description ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                   }`}
-                  placeholder="Describe available facilities (AC, WiFi, parking, etc.)"
+                  placeholder="Optional: Describe additional facilities (AC, WiFi, parking, etc.)"
                 />
                 {errors.facilities_description && (
                   <Text className="text-red-500 text-sm mt-1">{errors.facilities_description}</Text>
