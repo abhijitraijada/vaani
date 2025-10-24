@@ -12,7 +12,7 @@ import { AddParticipantModal } from '../components/dashboard/AddParticipantModal
 import { registrationService } from '../services/endpoints/registration.service';
 import type { ExportOptions } from '../services/export/export.types';
 import type { CompleteRegistrationData } from '../components/dashboard/AddParticipantModal';
-import type { MemberStatus } from '../services/endpoints/registration.types';
+import type { MemberStatus, RegistrationRequest } from '../services/endpoints/registration.types';
 
 export default function Participants() {
   const dispatch = useAppDispatch();
@@ -26,9 +26,81 @@ export default function Participants() {
 
   const pageSize = 50; // Fixed page size
   const [isAddParticipantModalOpen, setIsAddParticipantModalOpen] = useState(false);
+  const [addParticipantError, setAddParticipantError] = useState<string | null>(null);
 
   // Get the active event ID from the events state
   const { activeEvent } = useAppSelector((state) => state.events);
+
+  // Helper function to map date string to event_day_id
+  const getEventDayIdByDate = (dateString: string): string | null => {
+    if (!eventData) return null;
+    
+    const eventDay = eventData.daily_schedule.find(day => 
+      day.event_date === dateString
+    );
+    
+    return eventDay?.event_day_id || null;
+  };
+
+  // Transform modal data to API format
+  const transformToRegistrationRequest = (
+    registrationData: CompleteRegistrationData
+  ): RegistrationRequest | null => {
+    if (!activeEvent?.id) {
+      console.error('No active event found');
+      return null;
+    }
+
+    // Transform members
+    const members = registrationData.participants.map(participant => ({
+      name: participant.name,
+      phone_number: participant.phone,
+      email: participant.email || undefined,
+      city: participant.city || undefined,
+      age: participant.age || undefined,
+      gender: participant.gender,
+      language: participant.language || undefined,
+      special_requirements: participant.special_requirements || undefined,
+      status: 'registered' as MemberStatus
+    }));
+
+    // Transform daily preferences - only for days where attending is true
+    const daily_preferences = Object.entries(registrationData.preferencesByDate)
+      .filter(([, prefs]) => prefs.attending !== false) // Include if attending or undefined
+      .map(([date, prefs]) => {
+        const event_day_id = getEventDayIdByDate(date);
+        if (!event_day_id) {
+          console.warn(`Could not find event_day_id for date: ${date}`);
+          return null;
+        }
+        
+        return {
+          event_day_id,
+          staying_with_yatra: prefs.stayingWithYatra,
+          dinner_at_host: prefs.dinnerAtHost,
+          breakfast_at_host: prefs.breakfastAtHost,
+          lunch_with_yatra: prefs.lunchWithYatra,
+          physical_limitations: prefs.physicalLimitations || undefined,
+          toilet_preference: prefs.toiletPreference || 'indian'
+        };
+      })
+      .filter((pref): pref is NonNullable<typeof pref> => pref !== null);
+
+    // Build registration request
+    const request: RegistrationRequest = {
+      event_id: activeEvent.id,
+      registration_type: registrationData.participants.length === 1 ? 'individual' : 'group',
+      number_of_members: registrationData.participants.length,
+      transportation_mode: registrationData.transportType || 'public', // Default to 'public' if null
+      has_empty_seats: registrationData.vehicle.hasEmptySeats,
+      available_seats_count: registrationData.vehicle.availableSeats,
+      notes: '', // Could be added to modal if needed
+      members,
+      daily_preferences
+    };
+
+    return request;
+  };
 
   useEffect(() => {
     if (activeEvent?.id && !eventData) {
@@ -82,16 +154,50 @@ export default function Participants() {
   };
 
   const handleAddParticipantSubmit = async (registrationData: CompleteRegistrationData) => {
-    // TODO: Implement API call to add participant to the selected day
-    console.log('Adding complete registration:', registrationData);
-    console.log('To day:', selectedDay);
-    
-    // For now, just close the modal
-    // In a real implementation, you would:
-    // 1. Call an API to add the participant with all registration data
-    // 2. Refresh the dashboard data
-    // 3. Update the local state
-    setIsAddParticipantModalOpen(false);
+    try {
+      // Clear any previous errors
+      setAddParticipantError(null);
+      
+      // Transform modal data to API format
+      const apiRequest = transformToRegistrationRequest(registrationData);
+      
+      if (!apiRequest) {
+        throw new Error('Failed to prepare registration data');
+      }
+      
+      // Validate that we have at least one daily preference
+      if (apiRequest.daily_preferences.length === 0) {
+        throw new Error('Please select at least one day to attend');
+      }
+      
+      // Call API to create registration
+      console.log('Creating registration:', apiRequest);
+      const response = await registrationService.register(apiRequest);
+      console.log('Registration created successfully:', response);
+      
+      // Refresh dashboard data to show new participant
+      if (activeEvent?.id) {
+        await dispatch(fetchEventDashboard(activeEvent.id));
+      }
+      
+      // Close modal
+      setIsAddParticipantModalOpen(false);
+      
+      // Show success message (optional - could use toast notification)
+      console.log('Participant added successfully!');
+      
+    } catch (error: unknown) {
+      console.error('Failed to add participant:', error);
+      
+      // Set error message for user feedback
+      const errorMessage = (error as any)?.response?.data?.detail 
+        || (error as Error)?.message 
+        || 'Failed to add participant. Please try again.';
+      
+      setAddParticipantError(errorMessage);
+      
+      // Don't close modal on error - let user see the error and retry
+    }
   };
 
   const handleStatusUpdate = async (participantId: string, status: MemberStatus) => {
@@ -100,9 +206,10 @@ export default function Participants() {
       const updatedParticipant = await registrationService.updateParticipantStatus(participantId, { status });
       
       // Update Redux state with the complete updated participant data
+      // Note: StatusUpdateResponse has fewer fields than Participant, but the essential ones are present
       dispatch(updateParticipantStatus({ 
         participantId, 
-        updatedParticipant: updatedParticipant as any // Type assertion needed due to slight type differences
+        updatedParticipant: updatedParticipant as any // Type assertion needed due to field differences
       }));
     } catch (error) {
       console.error('Failed to update participant status:', error);
@@ -287,9 +394,43 @@ export default function Participants() {
       {/* Add Participant Modal */}
       <AddParticipantModal
         isOpen={isAddParticipantModalOpen}
-        onClose={() => setIsAddParticipantModalOpen(false)}
+        onClose={() => {
+          setIsAddParticipantModalOpen(false);
+          setAddParticipantError(null);
+        }}
         onSubmit={handleAddParticipantSubmit}
       />
+
+      {/* Error Display */}
+      {addParticipantError && isAddParticipantModalOpen && (
+        <div className="fixed bottom-4 right-4 z-[60] max-w-md">
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 shadow-lg">
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3 flex-1">
+                <h3 className="text-sm font-medium text-red-800 dark:text-red-200">
+                  Error Adding Participant
+                </h3>
+                <div className="mt-2 text-sm text-red-700 dark:text-red-300">
+                  {addParticipantError}
+                </div>
+              </div>
+              <button
+                onClick={() => setAddParticipantError(null)}
+                className="ml-3 flex-shrink-0 text-red-400 hover:text-red-600"
+              >
+                <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
