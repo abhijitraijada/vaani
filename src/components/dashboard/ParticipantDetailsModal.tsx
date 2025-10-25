@@ -42,18 +42,7 @@ export function ParticipantDetailsModal({
   const fetchAssignmentData = useCallback(async () => {
     if (!participant || !eventDayId) return;
     
-    // Check if host details are already available from dashboard data
-    if (participant.host_name) {
-      setAssignmentData({ 
-        assignment: null,
-        hostName: participant.host_name,
-        hostPlace: participant.host_place_name,
-        hostPhone: participant.host_phone_no?.toString()
-      });
-      return;
-    }
-    
-    // Fallback to API call if host details not available
+    // Always fetch assignment data from API to get the assignment ID for delete functionality
     setIsLoadingAssignment(true);
     try {
       const response = await assignmentService.getAllAssignments({
@@ -64,7 +53,13 @@ export function ParticipantDetailsModal({
 
       if (response.assignments.length > 0) {
         const assignment = response.assignments[0];
-        setAssignmentData({ assignment });
+        setAssignmentData({ 
+          assignment,
+          // Use dashboard data if available, otherwise will get from host via assignment
+          hostName: participant.host_name,
+          hostPlace: participant.host_place_name,
+          hostPhone: participant.host_phone_no?.toString()
+        });
       } else {
         setAssignmentData({ assignment: null });
       }
