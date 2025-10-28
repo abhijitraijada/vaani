@@ -3,6 +3,13 @@ export type FloorPreference = 'Ground floor' | 'First floor' | 'Any';
 export type ToiletPreference = 'indian' | 'western';
 export type MemberStatus = 'registered' | 'waiting' | 'confirmed' | 'cancelled';
 
+export interface HostAssignmentInfo {
+  event_day_id: string;
+  host_name?: string;
+  host_phone?: string;
+  host_location?: string;
+}
+
 export interface RegistrationMember {
   name: string;
   phone_number: string;
@@ -78,6 +85,7 @@ export interface SearchParticipantResponse {
     registration_id: number;
     created_at: string;
     updated_at: string;
+    host_assignments?: HostAssignmentInfo[];
   })[];
   daily_schedule: {
     event_day_id: string;

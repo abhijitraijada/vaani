@@ -26,18 +26,18 @@ export default function Home() {
     isAuthenticated: state.user.isAuthenticated
   }), shallowEqual);
 
-  const handleRegisterClick = () => {
-    if (!activeEvent) return;
+  // const handleRegisterClick = () => {
+  //   if (!activeEvent) return;
     
-    // const registrationStartDate = new Date(activeEvent.registration_start_date);
+  //   // const registrationStartDate = new Date(activeEvent.registration_start_date);
 
-    // if (currentDate >= registrationStartDate) {
-    if (false) {
-      navigate('/participant/register');
-    } else {
-      setShowModal(true);
-    }
-  };
+  //   // if (currentDate >= registrationStartDate) {
+  //   if (false) {
+  //     navigate('/participant/register');
+  //   } else {
+  //     setShowModal(true);
+  //   }
+  // };
 
   const handleSearch = async () => {
     if (!phoneNumber.trim()) {
@@ -80,7 +80,7 @@ export default function Home() {
       setSearchData(data);
       setSearchModal(true);
     } catch (error: any) {
-      setSearchError(error.message || 'Failed to search registration');
+      setSearchError(error.response?.data?.detail || error.message || 'Failed to search registration');
     } finally {
       setSearchLoading(false);
     }
@@ -103,33 +103,14 @@ export default function Home() {
               <p className="mx-auto mt-4 max-w-3xl text-base text-gray-600 sm:text-lg dark:text-gray-400">
                 {activeEvent?.description}
               </p>
-              <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-                <Button 
-                  className="h-12 px-6 text-base" 
-                  onClick={handleRegisterClick}
-                >
-                  Register now
-                </Button>
-                {isAuthenticated && (
-                  <Button 
-                    variant="secondary" 
-                    className="h-12 px-6 text-base" 
-                    onClick={() => navigate('/dashboard')}
-                  >
-                    View Dashboard
-                  </Button>
-                )}
-                <Button variant="secondary" className="h-12 px-6 text-base" onClick={() => window.open('https://www.youtube.com/@vasundharavani3048', '_blank')}>Explore highlights</Button>
-                <Button variant="secondary" className="h-12 px-6 text-base" onClick={() => navigate('/contact')}>Contact Us</Button>
-              </div>
-              <div className="mt-5">
+              {/* <div className="mt-5">
                 <h3 className="text-lg font-semibold text-yellow-800 dark:text-yellow-200 mb-2">Important Notice</h3>
                 <p className="text-yellow-700 dark:text-yellow-300">
                   Participants who do not want to stay as village's guests do not need to register to attend the yatra. 
                   They can attend without registration. Contact the hotel owners directly for accommodation arrangements.
                   Lunch will be provided on prior request; all other meals must be arranged by the participants themselves.
                 </p>
-              </div>
+              </div> */}
             </div>
           </Container>
         </section>
@@ -137,8 +118,8 @@ export default function Home() {
         {/* Search bar here */}
         <Section>
           <div className="mb-8 text-center">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Search Registration</h2>
-            <p className="text-gray-600 dark:text-gray-400">Enter your mobile number to check your registration status</p>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Check Your Accommodation Details</h2>
+            <p className="text-gray-600 dark:text-gray-400">Enter your registered mobile number to view your accommodation arrangements and schedule</p>
           </div>
           
                      <div className="max-w-md mx-auto">
@@ -166,6 +147,26 @@ export default function Home() {
              )}
            </div>
         </Section>
+
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+          {/* <Button 
+            className="h-12 px-6 text-base" 
+            onClick={handleRegisterClick}
+          >
+            Register now
+          </Button> */}
+          {isAuthenticated && (
+            <Button 
+              variant="secondary" 
+              className="h-12 px-6 text-base" 
+              onClick={() => navigate('/dashboard')}
+            >
+              View Dashboard
+            </Button>
+          )}
+          <Button variant="secondary" className="h-12 px-6 text-base" onClick={() => window.open('https://www.youtube.com/@vasundharavani3048', '_blank')}>Explore highlights</Button>
+          <Button variant="secondary" className="h-12 px-6 text-base" onClick={() => navigate('/contact')}>Contact Us</Button>
+        </div>
 
         <Section>
         <div className="mb-8 text-center">
@@ -559,78 +560,173 @@ export default function Home() {
                   </div>
                 </div>
 
-                               {/* Daily Schedule Cards */}
+                               {/* Timeline View */}
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
-                    Daily Schedule ({searchData.daily_schedule.length} days)
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">
+                    Event Schedule Timeline ({searchData.daily_schedule.length} days)
                   </h3>
-                  <div className="grid gap-4 md:grid-cols-2">
-                    {searchData.daily_schedule
-                      .sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime())
-                      .map((day) => (
-                        <div key={day.event_day_id} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600 flex flex-col h-55">
-                        <div className="flex items-center justify-between mb-3">
-                          <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                            {new Date(day.event_date).toLocaleDateString('en-US', { 
-                              weekday: 'long', 
-                              year: 'numeric', 
-                              month: 'long', 
-                              day: 'numeric' 
-                            })}
-                          </h4>
-                          <span className="text-sm font-medium text-indigo-600 dark:text-indigo-400">
-                            {day.location_name}
-                          </span>
-                        </div>
-                        
-                        <div className="flex-1 flex flex-col">
-                          <div className="space-y-3">
-                         <div>
-                           <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                             {day.daily_notes}
-                           </p>
-                         </div>
-                         
-                                                   {day.staying_with_yatra && (
-                            <div className="grid grid-cols-2 gap-2 text-sm">
-                              <div className="flex items-center space-x-2">
-                                <span className={`w-2 h-2 rounded-full ${day.staying_with_yatra ? 'bg-green-500' : 'bg-gray-300'}`}></span>
-                                <span className="text-gray-700 dark:text-gray-300">Staying</span>
-                              </div>
-                              {day.breakfast_provided && (
-                                <div className="flex items-center space-x-2">
-                                  <span className={`w-2 h-2 rounded-full ${day.breakfast_at_host ? 'bg-green-500' : 'bg-gray-300'}`}></span>
-                                  <span className="text-gray-700 dark:text-gray-300">Breakfast</span>
-                                </div>
-                              )}
-                              {day.lunch_provided && (
-                                <div className="flex items-center space-x-2">
-                                  <span className={`w-2 h-2 rounded-full ${day.lunch_with_yatra ? 'bg-green-500' : 'bg-gray-300'}`}></span>
-                                  <span className="text-gray-700 dark:text-gray-300">Lunch</span>
-                                </div>
-                              )}
-                              {day.dinner_provided && (
-                                <div className="flex items-center space-x-2">
-                                  <span className={`w-2 h-2 rounded-full ${day.dinner_at_host ? 'bg-green-500' : 'bg-gray-300'}`}></span>
-                                  <span className="text-gray-700 dark:text-gray-300">Dinner</span>
-                                </div>
-                              )}
-                            </div>
-                          )}
-                         
-                                                                             </div>
+                  
+                  <div className="relative">
+                    {/* Timeline items */}
+                    <div className="space-y-8">
+                      {searchData.daily_schedule
+                        .sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime())
+                        .map((day) => {
+                          // Determine date status
+                          const now = new Date();
+                          now.setHours(0, 0, 0, 0);
+                          const eventDate = new Date(day.event_date);
+                          eventDate.setHours(0, 0, 0, 0);
                           
-                          <div className="pt-2 border-t border-gray-200 dark:border-gray-600 mt-auto">
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              Toilet: {day.toilet_preference.charAt(0).toUpperCase() + day.toilet_preference.slice(1)} | 
-                              Physical Limitations: {day.physical_limitations}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                   ))}
-                 </div>
-               </div>
+                          const isPast = eventDate < now;
+                          const isCurrent = eventDate.getTime() === now.getTime();
+
+                          // Filter members with assignments
+                          const membersForThisDay = searchData.members.filter(member => 
+                            (member.status === 'registered' || member.status === 'confirmed') &&
+                            member.host_assignments?.some(assignment => 
+                              assignment.event_day_id === day.event_day_id
+                            )
+                          );
+
+                          // Dynamic styling
+                          
+                          const cardBorder = isCurrent
+                            ? 'border-green-400 dark:border-green-600 shadow-lg shadow-green-100 dark:shadow-green-900/20' 
+                            : isPast
+                            ? 'border-gray-300 dark:border-gray-700 opacity-75' 
+                            : 'border-indigo-300 dark:border-indigo-700';
+
+                          const cardBg = isCurrent
+                            ? 'bg-green-50 dark:bg-green-950/30' 
+                            : 'bg-gray-50 dark:bg-gray-800';
+
+                          return (
+                            <div key={day.event_day_id} className="relative">
+                              
+                              {/* Content card */}
+                              <div className={`rounded-lg p-4 shadow-sm border transition-all ${cardBg} ${cardBorder}`}>
+                                {/* Date Header with Status Badge */}
+                                <div className="mb-3">
+                                  <div className="flex items-center justify-between flex-wrap gap-2">
+                                    <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                      📅 {new Date(day.event_date).toLocaleDateString('en-US', { 
+                                        weekday: 'long', 
+                                        year: 'numeric', 
+                                        month: 'long', 
+                                        day: 'numeric' 
+                                      })}
+                                    </h4>
+                                    {isCurrent && (
+                                      <span className="px-2 py-1 text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full">
+                                        Today
+                                      </span>
+                                    )}
+                                    {isPast && (
+                                      <span className="px-2 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full">
+                                        Completed
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p className={`text-sm mt-1 ${
+                                    isCurrent 
+                                      ? 'text-green-600 dark:text-green-400' 
+                                      : isPast 
+                                      ? 'text-gray-500 dark:text-gray-500'
+                                      : 'text-indigo-600 dark:text-indigo-400'
+                                  }`}>
+                                    📍 {day.location_name}
+                                  </p>
+                                </div>
+
+                                {/* Daily Notes */}
+                                {day.daily_notes && (
+                                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 break-words">
+                                    {day.daily_notes}
+                                  </p>
+                                )}
+
+                                {/* Meals Section */}
+                                {day.staying_with_yatra && (
+                                  <div className="flex flex-wrap gap-3 mb-3 text-sm">
+                                    <div className="flex items-center gap-1 text-gray-700 dark:text-gray-300">
+                                      <span>🏠</span> Staying
+                                    </div>
+                                    {day.breakfast_provided && day.breakfast_at_host && (
+                                      <div className="flex items-center gap-1 text-gray-700 dark:text-gray-300">
+                                        <span>🍳</span> Breakfast
+                                      </div>
+                                    )}
+                                    {day.lunch_provided && day.lunch_with_yatra && (
+                                      <div className="flex items-center gap-1 text-gray-700 dark:text-gray-300">
+                                        <span>🍽️</span> Lunch
+                                      </div>
+                                    )}
+                                    {day.dinner_provided && day.dinner_at_host && (
+                                      <div className="flex items-center gap-1 text-gray-700 dark:text-gray-300">
+                                        <span>🌙</span> Dinner
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+
+                                {/* Host Assignments */}
+                                {membersForThisDay.length > 0 && (
+                                  <div className="border-t border-gray-300 dark:border-gray-600 pt-3 mt-3">
+                                    <h5 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">
+                                      👥 Host Assignments ({membersForThisDay.length})
+                                    </h5>
+                                    <div className="grid gap-2 md:grid-cols-2">
+                                      {membersForThisDay.map(member => {
+                                        const assignment = member.host_assignments?.find(
+                                          a => a.event_day_id === day.event_day_id
+                                        );
+                                        
+                                        if (!assignment) return null;
+                                        
+                                        return (
+                                          <div key={member.id} className="bg-white dark:bg-gray-900 rounded p-3 text-xs space-y-1 border border-gray-200 dark:border-gray-700">
+                                            <div className="font-medium text-gray-900 dark:text-gray-100 break-words">
+                                              👤 {member.name}
+                                            </div>
+                                            <div className="text-gray-700 dark:text-gray-300 break-words">
+                                              🏠 Host: {assignment.host_name || 'TBD'}
+                                            </div>
+                                            {assignment.host_location && (
+                                              <div className="text-gray-600 dark:text-gray-400 break-words">
+                                                📍 {assignment.host_location}
+                                              </div>
+                                            )}
+                                            {assignment.host_phone && (
+                                              <a 
+                                                href={`tel:${assignment.host_phone}`}
+                                                className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 underline decoration-dotted hover:decoration-solid transition-colors cursor-pointer break-words inline-flex items-center gap-1"
+                                              >
+                                                📞 {assignment.host_phone}
+                                              </a>
+                                            )}
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Footer */}
+                                <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    ℹ️ Toilet: {day.toilet_preference.charAt(0).toUpperCase() + day.toilet_preference.slice(1)} | 
+                                    Physical Limitations: {day.physical_limitations || 'None'}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })
+                      }
+                    </div>
+                  </div>
+                </div>
              </div>
 
              <div className="p-6 border-t border-gray-200 dark:border-gray-700">
