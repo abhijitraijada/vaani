@@ -3,6 +3,7 @@ import { Button } from '../primitives/Button';
 import { Icon } from '../primitives/Icon';
 import { ExportOptionsModal } from './ExportOptionsModal';
 import { ExportProgressModal } from './ExportProgressModal';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
 import type { ExportOptions } from '../../services/export/export.types';
 
 interface ExportButtonProps {
@@ -19,6 +20,7 @@ interface ExportButtonProps {
 }
 
 export function ExportButton({ onExport, availableDays, className }: ExportButtonProps) {
+  const { isMobile } = useMediaQuery();
   const [showOptionsModal, setShowOptionsModal] = useState(false);
   const [showProgressModal, setShowProgressModal] = useState(false);
   const [exportProgress, setExportProgress] = useState({ progress: 0, step: '' });
@@ -65,8 +67,8 @@ export function ExportButton({ onExport, availableDays, className }: ExportButto
         variant="secondary"
       >
         <div className="flex items-center">
-          <Icon name="download" className="w-4 h-4 mr-2" />
-          <span>Export to Excel</span>
+          <Icon name="download" className={isMobile ? "w-4 h-4" : "w-4 h-4 mr-2"} />
+          {!isMobile && <span>Export to Excel</span>}
         </div>
       </Button>
 

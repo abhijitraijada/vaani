@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { Card } from '../primitives/Layout';
 import { Heading, Text } from '../primitives/Typography';
 import { cn } from '../../lib/cn';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
 import type { SummaryStats } from '../../services/endpoints/dashboard.types';
 
 interface DetailedSummaryProps {
@@ -9,6 +11,21 @@ interface DetailedSummaryProps {
 }
 
 export function DetailedSummary({ summary, className }: DetailedSummaryProps) {
+  const { isMobile } = useMediaQuery();
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    registration: !isMobile,
+    transportation: !isMobile,
+    demographics: !isMobile,
+    toiletPreferences: !isMobile,
+    cities: !isMobile,
+  });
+
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
   // Helper function to capitalize city names for display
   const capitalizeCityName = (city: string) => {
     return city
@@ -34,13 +51,30 @@ export function DetailedSummary({ summary, className }: DetailedSummaryProps) {
   const totalAgeGroups = Object.values(summary.age_groups).reduce((sum, count) => sum + count, 0);
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn('space-y-4 md:space-y-6', className)}>
       {/* Registration Overview */}
-      <Card className="p-6">
-        <Heading className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
-          Registration Overview
-        </Heading>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <Card className="p-4 md:p-6">
+        <button
+          onClick={() => toggleSection('registration')}
+          className="w-full flex items-center justify-between mb-4 md:cursor-default"
+        >
+          <Heading className="text-lg md:text-xl font-semibold text-gray-900 dark:text-gray-100">
+            Registration Overview
+          </Heading>
+          <svg
+            className={cn(
+              'w-5 h-5 text-gray-600 dark:text-gray-400 transition-transform duration-200 md:hidden',
+              expandedSections.registration && 'rotate-180'
+            )}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        {expandedSections.registration && (
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
           <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
             <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
               {summary.total_groups}
@@ -66,14 +100,32 @@ export function DetailedSummary({ summary, className }: DetailedSummaryProps) {
             <div className="text-sm text-orange-800 dark:text-orange-200">Groups with Empty Seats</div>
           </div> */}
         </div>
+        )}
       </Card>
 
       {/* Transportation & Seating */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="p-6">
-          <Heading className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-            Transportation
-          </Heading>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+        <Card className="p-4 md:p-6">
+          <button
+            onClick={() => toggleSection('transportation')}
+            className="w-full flex items-center justify-between mb-4 md:cursor-default"
+          >
+            <Heading className="text-base md:text-lg font-semibold text-gray-900 dark:text-gray-100">
+              Transportation
+            </Heading>
+            <svg
+              className={cn(
+                'w-5 h-5 text-gray-600 dark:text-gray-400 transition-transform duration-200 md:hidden',
+                expandedSections.transportation && 'rotate-180'
+              )}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          {expandedSections.transportation && (
           <div className="space-y-3">
             <div className="flex justify-between items-center">
               <Text className="text-gray-600 dark:text-gray-400">Public Transport</Text>
@@ -104,10 +156,11 @@ export function DetailedSummary({ summary, className }: DetailedSummaryProps) {
               </div>
             </div>
           </div>
+          )}
         </Card>
 
-        <Card className="p-6">
-          <Heading className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+        <Card className="p-4 md:p-6">
+          <Heading className="text-base md:text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
             Seating Availability
           </Heading>
           <div className="text-center">
@@ -123,11 +176,28 @@ export function DetailedSummary({ summary, className }: DetailedSummaryProps) {
       </div>
 
       {/* Demographics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="p-6">
-          <Heading className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-            Gender Distribution
-          </Heading>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+        <Card className="p-4 md:p-6">
+          <button
+            onClick={() => toggleSection('demographics')}
+            className="w-full flex items-center justify-between mb-4 md:cursor-default"
+          >
+            <Heading className="text-base md:text-lg font-semibold text-gray-900 dark:text-gray-100">
+              Gender Distribution
+            </Heading>
+            <svg
+              className={cn(
+                'w-5 h-5 text-gray-600 dark:text-gray-400 transition-transform duration-200 md:hidden',
+                expandedSections.demographics && 'rotate-180'
+              )}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          {expandedSections.demographics && (
           <div className="space-y-3">
             <div className="flex justify-between items-center">
               <Text className="text-gray-600 dark:text-gray-400">Male</Text>
@@ -158,10 +228,11 @@ export function DetailedSummary({ summary, className }: DetailedSummaryProps) {
               </div>
             </div>
           </div>
+          )}
         </Card>
 
-        <Card className="p-6">
-          <Heading className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+        <Card className="p-4 md:p-6">
+          <Heading className="text-base md:text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
             Age Groups
           </Heading>
           <div className="space-y-3">
@@ -186,15 +257,31 @@ export function DetailedSummary({ summary, className }: DetailedSummaryProps) {
       </div>
 
       {/* Daily Toilet Preferences */}
-      <Card className="p-6">
-        <Heading className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-          Daily Toilet Preferences
-        </Heading>
-        
-        {/* Daily Breakdown */}
-        <div>
-          <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Daily Breakdown</Text>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <Card className="p-4 md:p-6">
+        <button
+          onClick={() => toggleSection('toiletPreferences')}
+          className="w-full flex items-center justify-between mb-4 md:cursor-default"
+        >
+          <Heading className="text-base md:text-lg font-semibold text-gray-900 dark:text-gray-100">
+            Daily Toilet Preferences
+          </Heading>
+          <svg
+            className={cn(
+              'w-5 h-5 text-gray-600 dark:text-gray-400 transition-transform duration-200 md:hidden',
+              expandedSections.toiletPreferences && 'rotate-180'
+            )}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        {expandedSections.toiletPreferences && (
+          <div>
+            {/* Daily Breakdown */}
+            <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Daily Breakdown</Text>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {Object.entries(summary.daily_toilet_preferences)
               .sort(([a], [b]) => new Date(a).getTime() - new Date(b).getTime())
               .map(([date, preferences]) => {
@@ -246,15 +333,34 @@ export function DetailedSummary({ summary, className }: DetailedSummaryProps) {
                   </div>
                 );
               })}
+            </div>
           </div>
-        </div>
+        )}
       </Card>
 
       {/* Top Cities */}
-      <Card className="p-6">
-        <Heading className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-          Top Cities by Participation
-        </Heading>
+      <Card className="p-4 md:p-6">
+        <button
+          onClick={() => toggleSection('cities')}
+          className="w-full flex items-center justify-between mb-4 md:cursor-default"
+        >
+          <Heading className="text-base md:text-lg font-semibold text-gray-900 dark:text-gray-100">
+            Top Cities by Participation
+          </Heading>
+          <svg
+            className={cn(
+              'w-5 h-5 text-gray-600 dark:text-gray-400 transition-transform duration-200 md:hidden',
+              expandedSections.cities && 'rotate-180'
+            )}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        {expandedSections.cities && (
+          <>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {topCities.map(([city, count], index) => (
             <div key={city} className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
@@ -280,6 +386,8 @@ export function DetailedSummary({ summary, className }: DetailedSummaryProps) {
               And {Object.keys(normalizedCityDistribution).length - 10} more cities
             </Text>
           </div>
+        )}
+        </>
         )}
       </Card>
     </div>

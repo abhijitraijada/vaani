@@ -47,6 +47,9 @@ export default function AddParticipants() {
   
   // Tab state for participant status filtering
   const [activeTab, setActiveTab] = useState<'assignable' | 'other'>('assignable');
+  
+  // Sidebar state
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Get Redux data
   const { eventData } = useAppSelector((state) => state.dashboard);
@@ -134,9 +137,9 @@ export default function AddParticipants() {
   if (isLoading) {
     return (
       <div className="min-h-screen">
-        <Sidebar />
-        <DashboardHeader pageName="Add Participants" />
-        <div className="ml-64 flex items-center justify-center h-64">
+        <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+        <DashboardHeader pageName="Add Participants" onMenuClick={() => setIsSidebarOpen(true)} />
+        <div className="ml-0 md:ml-64 flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
             <Text>Loading host details...</Text>
@@ -149,9 +152,9 @@ export default function AddParticipants() {
   if (error || !host) {
     return (
       <div className="min-h-screen">
-        <Sidebar />
-        <DashboardHeader pageName="Add Participants" />
-        <div className="ml-64 flex items-center justify-center h-64">
+        <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+        <DashboardHeader pageName="Add Participants" onMenuClick={() => setIsSidebarOpen(true)} />
+        <div className="ml-0 md:ml-64 flex items-center justify-center h-64">
           <div className="text-center">
             <Icon name="x" width={48} height={48} className="text-red-500 mx-auto mb-4" />
             <Heading className="text-xl text-red-600 dark:text-red-400 mb-2">
@@ -589,11 +592,11 @@ export default function AddParticipants() {
 
   return (
     <div className="min-h-screen">
-      <Sidebar />
-      <DashboardHeader pageName="Add Participants" />
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      <DashboardHeader pageName="Add Participants" onMenuClick={() => setIsSidebarOpen(true)} />
       
-      <main className="ml-64 overflow-y-auto">
-        <div className="p-6 space-y-6">
+      <main className="ml-0 md:ml-64 overflow-y-auto">
+        <div className="p-4 md:p-6 space-y-4 md:space-y-6">
 
           {/* Host Information Card */}
           <Card className="p-6">

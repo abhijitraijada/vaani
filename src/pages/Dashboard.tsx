@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../store';
 import { fetchEventDashboard } from '../store/dashboardSlice';
 import { Card } from '../components/primitives/Layout';
@@ -18,6 +18,9 @@ export default function Dashboard() {
 
   // Get the active event ID from the events state
   const { activeEvent } = useAppSelector((state) => state.events);
+
+  // Sidebar state for mobile
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (activeEvent?.id && !eventData) {
@@ -44,9 +47,9 @@ export default function Dashboard() {
   if (isLoading) {
     return (
       <div className="min-h-screen">
-        <Sidebar />
-        <DashboardHeader pageName="Dashboard" />
-        <div className="ml-64 flex items-center justify-center h-64">
+        <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+        <DashboardHeader pageName="Dashboard" onMenuClick={() => setIsSidebarOpen(true)} />
+        <div className="ml-0 md:ml-64 flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
             <Text>Loading dashboard...</Text>
@@ -59,9 +62,9 @@ export default function Dashboard() {
   if (error) {
     return (
       <div className="min-h-screen">
-        <Sidebar />
-        <DashboardHeader pageName="Dashboard" />
-        <div className="ml-64 flex items-center justify-center h-64">
+        <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+        <DashboardHeader pageName="Dashboard" onMenuClick={() => setIsSidebarOpen(true)} />
+        <div className="ml-0 md:ml-64 flex items-center justify-center h-64">
           <div className="text-center">
             <div className="text-red-500 text-6xl mb-4">⚠️</div>
             <Heading className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
@@ -77,9 +80,9 @@ export default function Dashboard() {
   if (!eventData) {
     return (
       <div className="min-h-screen">
-        <Sidebar />
-        <DashboardHeader pageName="Dashboard" />
-        <div className="ml-64 flex items-center justify-center h-64">
+        <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+        <DashboardHeader pageName="Dashboard" onMenuClick={() => setIsSidebarOpen(true)} />
+        <div className="ml-0 md:ml-64 flex items-center justify-center h-64">
           <div className="text-center">
             <div className="text-gray-400 text-6xl mb-4">📊</div>
             <Heading className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
@@ -96,11 +99,11 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen">
-      <Sidebar />
-      <DashboardHeader pageName="Dashboard" />
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      <DashboardHeader pageName="Dashboard" onMenuClick={() => setIsSidebarOpen(true)} />
       
-      <main className="ml-64 overflow-y-auto">
-        <div className="p-6 space-y-6">
+      <main className="ml-0 md:ml-64 overflow-y-auto">
+        <div className="p-4 md:p-6 space-y-6">
           {/* Event Header */}
           <div className="mb-8">
             <Heading className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
@@ -268,34 +271,34 @@ export default function Dashboard() {
           </div>
 
           {/* Event Summary */}
-          <Card className="p-6">
+          <Card className="p-4 md:p-6">
             <Heading className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
               Event Summary
             </Heading>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <Text className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+              <div className="text-center p-3 md:p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <Text className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">
                   {eventData.summary.total_groups}
                 </Text>
-                <Text className="text-sm text-gray-600 dark:text-gray-400">Total Groups</Text>
+                <Text className="text-xs md:text-sm text-gray-600 dark:text-gray-400">Total Groups</Text>
               </div>
-              <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <Text className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              <div className="text-center p-3 md:p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <Text className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">
                   {eventData.summary.group_registrations}
                 </Text>
-                <Text className="text-sm text-gray-600 dark:text-gray-400">Group Registrations</Text>
+                <Text className="text-xs md:text-sm text-gray-600 dark:text-gray-400">Group Registrations</Text>
               </div>
-              <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <Text className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              <div className="text-center p-3 md:p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <Text className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">
                   {eventData.daily_schedule.length}
                 </Text>
-                <Text className="text-sm text-gray-600 dark:text-gray-400">Event Days</Text>
+                <Text className="text-xs md:text-sm text-gray-600 dark:text-gray-400">Event Days</Text>
               </div>
-              <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <Text className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              <div className="text-center p-3 md:p-4 bg-gray-50 dark:bg-gray-800 rounded-lg col-span-2 md:col-span-1">
+                <Text className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">
                   {new Date(eventData.event_start_date).toLocaleDateString('en-US', { month: 'short' })} - {new Date(eventData.event_end_date).toLocaleDateString('en-US', { month: 'short' })}
                 </Text>
-                <Text className="text-sm text-gray-600 dark:text-gray-400">Duration</Text>
+                <Text className="text-xs md:text-sm text-gray-600 dark:text-gray-400">Duration</Text>
               </div>
             </div>
           </Card>

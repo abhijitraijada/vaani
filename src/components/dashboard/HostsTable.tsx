@@ -7,6 +7,8 @@ import { Icon } from '../primitives/Icon';
 import { Tooltip } from '../primitives/Tooltip';
 import { ExportButton } from '../export';
 import { HostParticipantsModal } from './HostParticipantsModal';
+import { MobileDataCard, MobileCardSection } from '../shared/MobileDataCard';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { cn } from '../../lib/cn';
 import type { ExportOptions } from '../../services/export/export.types';
 
@@ -43,6 +45,7 @@ export function HostsTable({
   availableDays,
   className 
 }: HostsTableProps) {
+  const { isMobile } = useMediaQuery();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState<{ key: 'max_participants' | null; direction: 'asc' | 'desc' }>({ key: null, direction: 'asc' });
   const [currentPage, setCurrentPage] = useState(1);
@@ -51,6 +54,9 @@ export function HostsTable({
   // Modal state
   const [selectedHost, setSelectedHost] = useState<HostWithAssignments | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Mobile sort dropdown state
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
 
   const handleSort = (key: 'max_participants') => {
     setSortConfig(prevConfig => {
@@ -174,6 +180,55 @@ export function HostsTable({
           
           {/* Action Buttons */}
           <div className="flex-shrink-0 flex gap-2">
+            {/* Mobile Sort Button */}
+            {isMobile && (
+              <div className="relative">
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowSortDropdown(!showSortDropdown)}
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+                  </svg>
+                  <span className="hidden sm:inline">Sort</span>
+                </Button>
+                
+                {/* Sort Dropdown */}
+                {showSortDropdown && (
+                  <>
+                    <div 
+                      className="fixed inset-0 z-40" 
+                      onClick={() => setShowSortDropdown(false)}
+                    />
+                    <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
+                      <div className="p-2">
+                        <div className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                          Sort By
+                        </div>
+                        <button
+                          onClick={() => {
+                            handleSort('max_participants');
+                            setShowSortDropdown(false);
+                          }}
+                          className="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-sm flex items-center gap-2"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                          </svg>
+                          Capacity
+                          {sortConfig.key === 'max_participants' && (
+                            <span className="ml-auto text-xs">
+                              {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                            </span>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+            
             <Button
               variant="primary"
               onClick={onAddHost}
@@ -182,7 +237,8 @@ export function HostsTable({
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
-                <span>Add Host</span>
+                <span className="hidden sm:inline">Add</span>
+                <span className="hidden md:inline">Host</span>
               </div>
             </Button>
             
@@ -197,8 +253,146 @@ export function HostsTable({
         </div>
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto relative">
+      {/* Mobile Sort Indicator */}
+      {isMobile && sortConfig.key && (
+        <div className="flex items-center justify-between p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg text-sm mb-4">
+          <span className="text-purple-700 dark:text-purple-300 font-medium">
+            Sorted by: Capacity ({sortConfig.direction === 'asc' ? 'Low to High' : 'High to Low'})
+          </span>
+          <button
+            onClick={() => setSortConfig({ key: null, direction: 'asc' })}
+            className="text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-200"
+          >
+            Clear
+          </button>
+        </div>
+      )}
+
+      {/* Mobile Card View */}
+      {isMobile && (
+        <div className="space-y-3 md:hidden">
+          {paginatedHosts.map((host, index) => (
+            <MobileDataCard
+              key={host.id}
+              onClick={() => handleRowClick(host)}
+            >
+              <div className="space-y-3">
+                {/* Header */}
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-base">
+                      {host.name}
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {host.place_name}
+                    </p>
+                  </div>
+                  <div className="text-right text-sm font-medium text-gray-500 dark:text-gray-400">
+                    #{index + 1}
+                  </div>
+                </div>
+
+                {/* Contact */}
+                <MobileCardSection>
+                  <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                    {host.phone_no}
+                  </div>
+                </MobileCardSection>
+
+                {/* Capacity */}
+                <MobileCardSection title="Capacity">
+                  <div className="grid grid-cols-3 gap-2 text-sm">
+                    <div>
+                      <div className="text-gray-600 dark:text-gray-400 text-xs">Max</div>
+                      <div className="font-semibold text-gray-900 dark:text-gray-100">
+                        {host.max_participants}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-gray-600 dark:text-gray-400 text-xs">Assigned</div>
+                      <div className={`font-semibold ${getCapacityColor(host.current_capacity, host.max_participants)}`}>
+                        {host.current_capacity}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-gray-600 dark:text-gray-400 text-xs">Available</div>
+                      <div className="font-semibold text-green-600 dark:text-green-400">
+                        {host.available_capacity}
+                      </div>
+                    </div>
+                  </div>
+                </MobileCardSection>
+
+                {/* Preferences */}
+                <MobileCardSection title="Preferences">
+                  <div className="flex gap-2">
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getGenderPreferenceColor(host.gender_preference)}`}>
+                      {host.gender_preference}
+                    </span>
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getToiletFacilitiesColor(host.toilet_facilities)}`}>
+                      {host.toilet_facilities}
+                    </span>
+                  </div>
+                </MobileCardSection>
+
+                {/* Facilities Description */}
+                {host.facilities_description && (
+                  <MobileCardSection title="Facilities">
+                    <p className="text-sm text-gray-700 dark:text-gray-300">
+                      {host.facilities_description}
+                    </p>
+                  </MobileCardSection>
+                )}
+
+                {/* Actions */}
+                <div className="flex gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEditHost?.(host);
+                    }}
+                    className="flex-1"
+                  >
+                    <Icon name="pencil" width={16} height={16} className="mr-1" />
+                    Edit
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onAddParticipants?.(host);
+                    }}
+                    className="flex-1"
+                  >
+                    <Icon name="user-plus" width={16} height={16} className="mr-1" />
+                    Add
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeleteHost?.(host.id);
+                    }}
+                    className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                  >
+                    <Icon name="trash" width={16} height={16} />
+                  </Button>
+                </div>
+              </div>
+            </MobileDataCard>
+          ))}
+        </div>
+      )}
+
+      {/* Desktop Table View */}
+      <div className="hidden md:block overflow-x-auto relative">
         <table className="w-full">
           <thead className="sticky top-0 z-10 bg-white dark:bg-gray-900 shadow-sm">
             <tr className="border-b border-gray-200 dark:border-gray-700">

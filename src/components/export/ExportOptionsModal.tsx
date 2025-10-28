@@ -3,6 +3,7 @@ import { Card } from '../primitives/Layout';
 import { Heading, Text } from '../primitives/Typography';
 import { Button } from '../primitives/Button';
 import { Switch } from '../primitives/Switch';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { cn } from '../../lib/cn';
 import { EXPORT_FIELDS, EXPORT_FIELD_CATEGORIES } from '../../services/export/export.types';
 import type { ExportOptions } from '../../services/export/export.types';
@@ -25,6 +26,7 @@ export function ExportOptionsModal({
   onConfirm, 
   onCancel 
 }: ExportOptionsModalProps) {
+  const { isMobile } = useMediaQuery();
   const [options, setOptions] = useState<ExportOptions>({
     selectedFields: EXPORT_FIELDS
       .filter(field => field.required || field.category === 'basic')
@@ -149,9 +151,20 @@ export function ExportOptionsModal({
   const participantCounts = getParticipantCounts();
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <Card className="w-full max-w-4xl max-h-[90vh] overflow-hidden">
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+    <div className={cn(
+      'fixed inset-0 bg-black bg-opacity-50 z-50',
+      isMobile ? 'flex flex-col' : 'flex items-center justify-center p-4'
+    )}>
+      <Card className={cn(
+        'w-full overflow-hidden',
+        isMobile 
+          ? 'h-full flex flex-col rounded-none' 
+          : 'max-w-4xl max-h-[90vh]'
+      )}>
+        <div className={cn(
+          'p-4 md:p-6 border-b border-gray-200 dark:border-gray-700',
+          isMobile && 'sticky top-0 z-10 bg-white dark:bg-gray-900'
+        )}>
           <Heading className="text-xl font-semibold text-gray-900 dark:text-gray-100">
             Export Options
           </Heading>
@@ -160,7 +173,12 @@ export function ExportOptionsModal({
           </Text>
         </div>
 
-        <div className="p-6 overflow-y-auto max-h-[60vh]">
+        <div className={cn(
+          'overflow-y-auto',
+          isMobile 
+            ? 'flex-1 p-4' 
+            : 'p-6 max-h-[60vh]'
+        )}>
           {errors.length > 0 && (
             <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
               <Text className="text-red-800 dark:text-red-200 font-medium mb-2">
@@ -420,11 +438,16 @@ export function ExportOptionsModal({
           </div>
         </div>
 
-        <div className="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
-          <Button variant="secondary" onClick={onCancel}>
+        <div className={cn(
+          'p-4 md:p-6 border-t border-gray-200 dark:border-gray-700 flex gap-3',
+          isMobile 
+            ? 'sticky bottom-0 bg-white dark:bg-gray-900 flex-col' 
+            : 'justify-end'
+        )}>
+          <Button variant="secondary" onClick={onCancel} className={isMobile ? 'w-full' : ''}>
             Cancel
           </Button>
-          <Button onClick={handleConfirm}>
+          <Button onClick={handleConfirm} className={isMobile ? 'w-full' : ''}>
             Export to Excel
           </Button>
         </div>

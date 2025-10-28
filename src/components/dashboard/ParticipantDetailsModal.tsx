@@ -9,6 +9,7 @@ import { Tooltip } from '../primitives/Tooltip';
 import { DeleteAssignmentDialog } from '../shared/DeleteAssignmentDialog';
 import { assignmentService } from '../../services/endpoints/assignment.service';
 import { useToast } from '../feedback/Toast';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { cn } from '../../lib/cn';
 
 interface ParticipantDetailsModalProps {
@@ -33,6 +34,7 @@ export function ParticipantDetailsModal({
   eventDayId,
   onAssignmentDeleted 
 }: ParticipantDetailsModalProps) {
+  const { isMobile } = useMediaQuery();
   const [assignmentData, setAssignmentData] = useState<HostAssignmentData>({ assignment: null });
   const [isLoadingAssignment, setIsLoadingAssignment] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -175,10 +177,21 @@ export function ParticipantDetailsModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+    <div className={cn(
+      'fixed inset-0 bg-black bg-opacity-50 z-50',
+      isMobile ? 'flex flex-col' : 'flex items-center justify-center p-4'
+    )}>
+      <div className={cn(
+        'bg-white dark:bg-gray-800 w-full overflow-hidden',
+        isMobile 
+          ? 'h-full flex flex-col' 
+          : 'rounded-lg max-w-4xl max-h-[90vh]'
+      )}>
+        {/* Header - Sticky on mobile */}
+        <div className={cn(
+          'flex items-center justify-between p-4 md:p-6 border-b border-gray-200 dark:border-gray-700',
+          isMobile && 'sticky top-0 z-10 bg-white dark:bg-gray-800'
+        )}>
           <div>
             <Heading className="text-xl font-semibold text-gray-900 dark:text-gray-100">
               Participant Details
@@ -197,11 +210,16 @@ export function ParticipantDetailsModal({
           </Button>
         </div>
 
-        {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[70vh]">
-          <div className="space-y-6">
+        {/* Content - Flexible on mobile */}
+        <div className={cn(
+          'overflow-y-auto',
+          isMobile 
+            ? 'flex-1 p-4' 
+            : 'p-6 max-h-[70vh]'
+        )}>
+          <div className="space-y-4 md:space-y-6">
             {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
               <Card className="p-4 text-center">
                 <Text className="text-sm font-medium text-gray-600 dark:text-gray-400">Age</Text>
                 <Text className="text-2xl font-bold text-gray-900 dark:text-gray-100">{participant.age}</Text>
@@ -477,13 +495,16 @@ export function ParticipantDetailsModal({
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="flex items-center justify-between p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
-          <div className="text-sm text-gray-600 dark:text-gray-400">
-            Participant ID: {participant.id.substring(0, 8)}...
+        {/* Footer - Sticky on mobile */}
+        <div className={cn(
+          'flex items-center justify-between p-4 md:p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50',
+          isMobile && 'sticky bottom-0'
+        )}>
+          <div className="text-xs md:text-sm text-gray-600 dark:text-gray-400">
+            ID: {participant.id.substring(0, 8)}...
           </div>
           <div className="flex gap-3">
-            <Button variant="secondary" onClick={onClose}>
+            <Button variant="secondary" onClick={onClose} className={isMobile ? 'text-sm' : ''}>
               Close
             </Button>
           </div>

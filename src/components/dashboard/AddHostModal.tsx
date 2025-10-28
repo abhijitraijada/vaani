@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '../primitives/Button';
 import { Heading, Text } from '../primitives/Typography';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { cn } from '../../lib/cn';
 import type { CreateHostRequest, UpdateHostRequest, ToiletFacilities, GenderPreference, HostWithAssignments } from '../../services/endpoints/host.types';
 
@@ -16,6 +17,7 @@ interface AddHostModalProps {
 }
 
 export function AddHostModal({ isOpen, onClose, onSubmit, onUpdate, eventId, eventDaysId, editHost, className }: AddHostModalProps) {
+  const { isMobile } = useMediaQuery();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Determine if we're in edit mode
@@ -155,7 +157,10 @@ export function AddHostModal({ isOpen, onClose, onSubmit, onUpdate, eventId, eve
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className={cn(
+      'fixed inset-0 z-50',
+      isMobile ? 'flex flex-col' : 'flex items-center justify-center'
+    )}>
       {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-black bg-opacity-50"
@@ -164,11 +169,17 @@ export function AddHostModal({ isOpen, onClose, onSubmit, onUpdate, eventId, eve
       
       {/* Modal */}
       <div className={cn(
-        'relative bg-white dark:bg-gray-900 rounded-xl shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-hidden',
+        'relative bg-white dark:bg-gray-900 shadow-xl w-full overflow-hidden',
+        isMobile 
+          ? 'h-full flex flex-col' 
+          : 'rounded-xl max-w-2xl mx-4 max-h-[90vh]',
         className
       )}>
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+        {/* Header - Sticky on mobile */}
+        <div className={cn(
+          'flex items-center justify-between p-4 md:p-6 border-b border-gray-200 dark:border-gray-700',
+          isMobile && 'sticky top-0 z-10 bg-white dark:bg-gray-900'
+        )}>
           <div>
             <Heading className="text-xl font-semibold text-gray-900 dark:text-gray-100">
               {isEditMode ? 'Edit Host' : 'Add New Host'}
@@ -188,8 +199,16 @@ export function AddHostModal({ isOpen, onClose, onSubmit, onUpdate, eventId, eve
           </Button>
         </div>
 
-        {/* Content */}
-        <form onSubmit={handleSubmit} className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+        {/* Content - Flexible on mobile */}
+        <form 
+          onSubmit={handleSubmit} 
+          className={cn(
+            'overflow-y-auto',
+            isMobile 
+              ? 'flex-1 p-4' 
+              : 'p-6 max-h-[calc(90vh-140px)]'
+          )}
+        >
           <div className="space-y-6">
             
             {/* Basic Information */}
@@ -330,13 +349,19 @@ export function AddHostModal({ isOpen, onClose, onSubmit, onUpdate, eventId, eve
               </div>
             </div>
 
-            {/* Form Actions */}
-            <div className="flex justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+            {/* Form Actions - Sticky footer on mobile */}
+            <div className={cn(
+              'flex gap-3 pt-6 border-t border-gray-200 dark:border-gray-700',
+              isMobile 
+                ? 'sticky bottom-0 bg-white dark:bg-gray-900 pb-4 flex-col' 
+                : 'justify-end'
+            )}>
               <Button
                 type="button"
                 variant="secondary"
                 onClick={handleClose}
                 disabled={isSubmitting}
+                className={isMobile ? 'w-full' : ''}
               >
                 Cancel
               </Button>
@@ -345,6 +370,7 @@ export function AddHostModal({ isOpen, onClose, onSubmit, onUpdate, eventId, eve
                 variant="primary"
                 loading={isSubmitting}
                 disabled={isSubmitting}
+                className={isMobile ? 'w-full' : ''}
               >
                 {isSubmitting ? (isEditMode ? "Updating Host..." : "Adding Host...") : (isEditMode ? "Update Host" : "Add Host")}
               </Button>

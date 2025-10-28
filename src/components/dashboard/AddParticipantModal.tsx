@@ -6,6 +6,7 @@ import { DailyPreferencesForm, type DayPreferences } from '../participant/DailyP
 import { TransportTypeSelector, type TransportType } from '../participant/TransportTypeSelector';
 import { VehicleDetailsFields, type VehicleDetails } from '../participant/VehicleDetailsFields';
 import { RegistrationStepper } from '../participant/RegistrationStepper';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { cn } from '../../lib/cn';
 import { useAppSelector } from '../../store';
 
@@ -24,6 +25,7 @@ export type CompleteRegistrationData = {
 };
 
 export function AddParticipantModal({ isOpen, onClose, onSubmit, className }: AddParticipantModalProps) {
+  const { isMobile } = useMediaQuery();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -284,7 +286,10 @@ export function AddParticipantModal({ isOpen, onClose, onSubmit, className }: Ad
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className={cn(
+      'fixed inset-0 z-50',
+      isMobile ? 'flex flex-col' : 'flex items-center justify-center'
+    )}>
       {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-black bg-opacity-50"
@@ -293,16 +298,22 @@ export function AddParticipantModal({ isOpen, onClose, onSubmit, className }: Ad
       
       {/* Modal */}
       <div className={cn(
-        'relative bg-white dark:bg-gray-900 rounded-xl shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden',
+        'relative bg-white dark:bg-gray-900 shadow-xl w-full overflow-hidden',
+        isMobile 
+          ? 'h-full flex flex-col' 
+          : 'rounded-xl max-w-4xl mx-4 max-h-[90vh]',
         className
       )}>
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-          <div>
-            <Heading className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+        {/* Header - Sticky on mobile */}
+        <div className={cn(
+          'flex items-center justify-between p-4 md:p-6 border-b border-gray-200 dark:border-gray-700',
+          isMobile && 'sticky top-0 z-10 bg-white dark:bg-gray-900'
+        )}>
+          <div className="flex-1">
+            <Heading className="text-lg md:text-xl font-semibold text-gray-900 dark:text-gray-100">
               Add New Participant
             </Heading>
-            <Text className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            <Text className="text-xs md:text-sm text-gray-600 dark:text-gray-400 mt-1">
               Complete registration with all required details
             </Text>
           </div>
@@ -317,13 +328,21 @@ export function AddParticipantModal({ isOpen, onClose, onSubmit, className }: Ad
           </Button>
         </div>
 
-        {/* Step Indicator */}
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        {/* Step Indicator - Sticky on mobile */}
+        <div className={cn(
+          'px-4 md:px-6 py-3 md:py-4 border-b border-gray-200 dark:border-gray-700',
+          isMobile && 'sticky top-[73px] z-10 bg-white dark:bg-gray-900'
+        )}>
           <RegistrationStepper steps={steps} current={currentStep} />
         </div>
 
-        {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+        {/* Content - Flexible on mobile */}
+        <div className={cn(
+          'overflow-y-auto',
+          isMobile 
+            ? 'flex-1 p-4' 
+            : 'p-6 max-h-[calc(90vh-200px)]'
+        )}>
           {renderStepContent()}
         </div>
       </div>

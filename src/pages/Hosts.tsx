@@ -29,6 +29,7 @@ export default function Hosts() {
   const [isAddHostModalOpen, setIsAddHostModalOpen] = useState(false);
   const [isEditHostModalOpen, setIsEditHostModalOpen] = useState(false);
   const [editingHost, setEditingHost] = useState<HostWithAssignments | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Get the active event ID from the events state
   const { activeEvent } = useAppSelector((state) => state.events);
@@ -166,9 +167,9 @@ export default function Hosts() {
   if (isLoading) {
     return (
       <div className="min-h-screen">
-        <Sidebar />
-        <DashboardHeader pageName="Hosts" />
-        <div className="ml-64 flex items-center justify-center h-64">
+        <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+        <DashboardHeader pageName="Hosts" onMenuClick={() => setIsSidebarOpen(true)} />
+        <div className="ml-0 md:ml-64 flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
             <Text>Loading hosts...</Text>
@@ -181,9 +182,9 @@ export default function Hosts() {
   if (error) {
     return (
       <div className="min-h-screen">
-        <Sidebar />
-        <DashboardHeader pageName="Hosts" />
-        <div className="ml-64 flex items-center justify-center h-64">
+        <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+        <DashboardHeader pageName="Hosts" onMenuClick={() => setIsSidebarOpen(true)} />
+        <div className="ml-0 md:ml-64 flex items-center justify-center h-64">
           <div className="text-center">
             <div className="text-red-500 text-6xl mb-4">⚠️</div>
             <Heading className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
@@ -202,9 +203,9 @@ export default function Hosts() {
   if (!hostsData) {
     return (
       <div className="min-h-screen">
-        <Sidebar />
-        <DashboardHeader pageName="Hosts" />
-        <div className="ml-64 flex items-center justify-center h-64">
+        <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+        <DashboardHeader pageName="Hosts" onMenuClick={() => setIsSidebarOpen(true)} />
+        <div className="ml-0 md:ml-64 flex items-center justify-center h-64">
           <div className="text-center">
             <div className="text-gray-400 text-6xl mb-4">🏠</div>
             <Heading className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
@@ -224,15 +225,15 @@ export default function Hosts() {
 
   return (
     <div className="min-h-screen">
-      <Sidebar />
-      <DashboardHeader pageName="Hosts" />
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      <DashboardHeader pageName="Hosts" onMenuClick={() => setIsSidebarOpen(true)} />
       
-      <main className="ml-64 overflow-y-auto">
-        <div className="p-6 space-y-6">
+      <main className="ml-0 md:ml-64 overflow-y-auto">
+        <div className="p-4 md:p-6 space-y-4 md:space-y-6">
 
           {/* Date Tabs */}
-          <Card className="p-6">
-            <Heading className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+          <Card className="p-4 md:p-6">
+            <Heading className="text-base md:text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
               Select Event Day
             </Heading>
             <DateTabs
@@ -244,9 +245,9 @@ export default function Hosts() {
 
           {/* Selected Day Content */}
           {selectedDayData && currentPaginatedData && (
-            <div className="space-y-6">
+            <div className="space-y-4 md:space-y-6">
               {/* Day Info Card */}
-              <Card className="p-6">
+              <Card className="p-4 md:p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <Heading className="text-xl font-semibold text-gray-900 dark:text-gray-100">
@@ -277,20 +278,20 @@ export default function Hosts() {
                 )}
 
                 {/* Host Statistics */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
-                    <Text className="text-sm font-medium text-purple-600 dark:text-purple-400">Total Hosts</Text>
-                    <Text className="text-2xl font-bold text-purple-900 dark:text-purple-100">{selectedDayData.hosts.length}</Text>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
+                  <div className="bg-purple-50 dark:bg-purple-900/20 p-3 md:p-4 rounded-lg">
+                    <Text className="text-xs md:text-sm font-medium text-purple-600 dark:text-purple-400">Total Hosts</Text>
+                    <Text className="text-xl md:text-2xl font-bold text-purple-900 dark:text-purple-100">{selectedDayData.hosts.length}</Text>
                   </div>
-                  <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
-                    <Text className="text-sm font-medium text-green-600 dark:text-green-400">Total Capacity</Text>
-                    <Text className="text-2xl font-bold text-green-900 dark:text-green-100">
+                  <div className="bg-green-50 dark:bg-green-900/20 p-3 md:p-4 rounded-lg">
+                    <Text className="text-xs md:text-sm font-medium text-green-600 dark:text-green-400">Total Capacity</Text>
+                    <Text className="text-xl md:text-2xl font-bold text-green-900 dark:text-green-100">
                       {selectedDayData.hosts.reduce((sum, host) => sum + host.max_participants, 0)}
                     </Text>
                   </div>
-                  <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-                    <Text className="text-sm font-medium text-blue-600 dark:text-blue-400">Average Capacity</Text>
-                    <Text className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                  <div className="bg-blue-50 dark:bg-blue-900/20 p-3 md:p-4 rounded-lg">
+                    <Text className="text-xs md:text-sm font-medium text-blue-600 dark:text-blue-400">Avg Capacity</Text>
+                    <Text className="text-xl md:text-2xl font-bold text-blue-900 dark:text-blue-100">
                       {selectedDayData.hosts.length > 0 
                         ? Math.round(selectedDayData.hosts.reduce((sum, host) => sum + host.max_participants, 0) / selectedDayData.hosts.length)
                         : 0

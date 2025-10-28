@@ -27,6 +27,7 @@ export default function Participants() {
   const pageSize = 50; // Fixed page size
   const [isAddParticipantModalOpen, setIsAddParticipantModalOpen] = useState(false);
   const [addParticipantError, setAddParticipantError] = useState<string | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Get the active event ID from the events state
   const { activeEvent } = useAppSelector((state) => state.events);
@@ -250,9 +251,9 @@ export default function Participants() {
   if (isLoading) {
     return (
       <div className="min-h-screen">
-        <Sidebar />
-        <DashboardHeader pageName="Participants" />
-        <div className="ml-64 flex items-center justify-center h-64">
+        <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+        <DashboardHeader pageName="Participants" onMenuClick={() => setIsSidebarOpen(true)} />
+        <div className="ml-0 md:ml-64 flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
             <Text>Loading participants...</Text>
@@ -265,9 +266,9 @@ export default function Participants() {
   if (error) {
     return (
       <div className="min-h-screen">
-        <Sidebar />
-        <DashboardHeader pageName="Participants" />
-        <div className="ml-64 flex items-center justify-center h-64">
+        <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+        <DashboardHeader pageName="Participants" onMenuClick={() => setIsSidebarOpen(true)} />
+        <div className="ml-0 md:ml-64 flex items-center justify-center h-64">
           <div className="text-center">
             <div className="text-red-500 text-6xl mb-4">⚠️</div>
             <Heading className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
@@ -283,9 +284,9 @@ export default function Participants() {
   if (!eventData) {
     return (
       <div className="min-h-screen">
-        <Sidebar />
-        <DashboardHeader pageName="Participants" />
-        <div className="ml-64 flex items-center justify-center h-64">
+        <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+        <DashboardHeader pageName="Participants" onMenuClick={() => setIsSidebarOpen(true)} />
+        <div className="ml-0 md:ml-64 flex items-center justify-center h-64">
           <div className="text-center">
             <div className="text-gray-400 text-6xl mb-4">👥</div>
             <Heading className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
@@ -305,15 +306,15 @@ export default function Participants() {
 
   return (
     <div className="min-h-screen">
-      <Sidebar />
-      <DashboardHeader pageName="Participants" />
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      <DashboardHeader pageName="Participants" onMenuClick={() => setIsSidebarOpen(true)} />
       
-      <main className="ml-64 overflow-y-auto">
-        <div className="p-6 space-y-6">
+      <main className="ml-0 md:ml-64 overflow-y-auto">
+        <div className="p-4 md:p-6 space-y-4 md:space-y-6">
 
           {/* Date Tabs */}
-          <Card className="p-6">
-            <Heading className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+          <Card className="p-4 md:p-6">
+            <Heading className="text-base md:text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
               Select Event Day
             </Heading>
             <DateTabs
@@ -325,9 +326,9 @@ export default function Participants() {
 
           {/* Selected Day Content */}
           {selectedDayData && currentPaginatedData && (
-            <div className="space-y-6">
+            <div className="space-y-4 md:space-y-6">
               {/* Day Info Card */}
-              <Card className="p-6">
+              <Card className="p-4 md:p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <Heading className="text-xl font-semibold text-gray-900 dark:text-gray-100">
@@ -358,14 +359,14 @@ export default function Participants() {
                 )}
 
                 {/* Meal Information */}
-                <div className="flex gap-4">
-                  <div className={`px-3 py-1 rounded-full text-sm ${selectedDayData.breakfast_provided ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-200' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'}`}>
+                <div className="flex flex-wrap gap-2 md:gap-4">
+                  <div className={`px-3 py-1 rounded-full text-xs md:text-sm whitespace-nowrap ${selectedDayData.breakfast_provided ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-200' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'}`}>
                     🍳 Breakfast {selectedDayData.breakfast_provided ? 'Provided' : 'Not Provided'}
                   </div>
-                  <div className={`px-3 py-1 rounded-full text-sm ${selectedDayData.lunch_provided ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-200' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'}`}>
+                  <div className={`px-3 py-1 rounded-full text-xs md:text-sm whitespace-nowrap ${selectedDayData.lunch_provided ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-200' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'}`}>
                     🍽️ Lunch {selectedDayData.lunch_provided ? 'Provided' : 'Not Provided'}
                   </div>
-                  <div className={`px-3 py-1 rounded-full text-sm ${selectedDayData.dinner_provided ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-200' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'}`}>
+                  <div className={`px-3 py-1 rounded-full text-xs md:text-sm whitespace-nowrap ${selectedDayData.dinner_provided ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-200' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'}`}>
                     🍴 Dinner {selectedDayData.dinner_provided ? 'Provided' : 'Not Provided'}
                   </div>
                 </div>

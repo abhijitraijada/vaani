@@ -1,11 +1,13 @@
 import { useState, useMemo, useEffect } from 'react';
 import type { Participant } from '../../services/endpoints/dashboard.types';
 import { Card } from '../primitives/Layout';
-import { Heading } from '../primitives/Typography';
+import { Heading, Text } from '../primitives/Typography';
 import { Button } from '../primitives/Button';
 import { ExportButton } from '../export';
 import { StatusDropdown } from './StatusDropdown';
 import { ParticipantDetailsModal } from './ParticipantDetailsModal';
+import { MobileDataCard, MobileCardSection } from '../shared/MobileDataCard';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { cn } from '../../lib/cn';
 import type { ExportOptions } from '../../services/export/export.types';
 import type { MemberStatus } from '../../services/endpoints/registration.types';
@@ -40,6 +42,7 @@ export function ParticipantsTable({
   availableDays,
   className 
 }: ParticipantsTableProps) {
+  const { isMobile } = useMediaQuery();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState<{ key: 'age' | 'status' | null; direction: 'asc' | 'desc' }>({ key: null, direction: 'asc' });
   const [statusSortPriority, setStatusSortPriority] = useState<MemberStatus | null>(null);
@@ -50,6 +53,9 @@ export function ParticipantsTable({
   // Modal state
   const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Mobile sort dropdown state
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
 
   // Define status order for sorting (ascending order)
   const statusOrder: Record<MemberStatus, number> = {
@@ -222,6 +228,72 @@ export function ParticipantsTable({
           
           {/* Action Buttons */}
           <div className="flex-shrink-0 flex gap-2">
+            {/* Mobile Sort Button */}
+            {isMobile && (
+              <div className="relative">
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowSortDropdown(!showSortDropdown)}
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+                  </svg>
+                  <span className="hidden sm:inline">Sort</span>
+                </Button>
+                
+                {/* Sort Dropdown */}
+                {showSortDropdown && (
+                  <>
+                    <div 
+                      className="fixed inset-0 z-40" 
+                      onClick={() => setShowSortDropdown(false)}
+                    />
+                    <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
+                      <div className="p-2">
+                        <div className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                          Sort By
+                        </div>
+                        <button
+                          onClick={() => {
+                            handleSort('age');
+                            setShowSortDropdown(false);
+                          }}
+                          className="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-sm"
+                        >
+                          Age
+                        </button>
+                        
+                        <div className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mt-2">
+                          Sort by Status
+                        </div>
+                        {Object.keys(statusOrder).map((status) => (
+                          <button
+                            key={status}
+                            onClick={() => {
+                              handleStatusSort(status as MemberStatus);
+                              setShowSortDropdown(false);
+                            }}
+                            className="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-sm capitalize flex items-center gap-2"
+                          >
+                            <div className={cn(
+                              'w-2 h-2 rounded-full',
+                              status === 'registered' && 'bg-green-500',
+                              status === 'waiting' && 'bg-yellow-500',
+                              status === 'not_attending' && 'bg-red-500',
+                              status === 'cancelled' && 'bg-gray-500',
+                              status === 'assigned' && 'bg-blue-500',
+                              status === 'unassigned' && 'bg-orange-500'
+                            )} />
+                            {status.replace('_', ' ')} first
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+            
             <Button
               variant="primary"
               onClick={onAddParticipant}
@@ -230,7 +302,8 @@ export function ParticipantsTable({
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
-                <span>Add Participant</span>
+                <span className="hidden sm:inline">Add</span>
+                <span className="hidden md:inline">Participant</span>
               </div>
             </Button>
             
@@ -245,8 +318,112 @@ export function ParticipantsTable({
         </div>
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto relative">
+      {/* Mobile Sort Indicator */}
+      {isMobile && sortConfig.key && (
+        <div className="flex items-center justify-between p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg text-sm mb-4">
+          <span className="text-purple-700 dark:text-purple-300 font-medium">
+            Sorted by: {sortConfig.key === 'age' ? 'Age' : 'Status'}
+            {sortConfig.key === 'status' && statusSortPriority && (
+              <span className="ml-2">
+                ({statusSortPriority.charAt(0).toUpperCase() + statusSortPriority.slice(1)} first)
+              </span>
+            )}
+          </span>
+          <button
+            onClick={() => {
+              setSortConfig({ key: null, direction: 'asc' });
+              setStatusSortPriority(null);
+            }}
+            className="text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-200"
+          >
+            Clear
+          </button>
+        </div>
+      )}
+
+      {/* Mobile Card View */}
+      {isMobile && (
+        <div className="space-y-3 md:hidden">
+          {paginatedParticipants.map((participant, index) => (
+            <MobileDataCard
+              key={participant.id}
+              onClick={() => handleRowClick(participant)}
+            >
+              <div className="space-y-3">
+                {/* Header */}
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-base">
+                      {participant.name}
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {participant.language} • Age {participant.age}
+                    </p>
+                  </div>
+                  <div className="text-right text-sm font-medium text-gray-500 dark:text-gray-400">
+                    #{index + 1}
+                  </div>
+                </div>
+
+                {/* Contact Info */}
+                <MobileCardSection>
+                  <div className="flex flex-col gap-1 text-sm">
+                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                      </svg>
+                      {participant.phone_number}
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      {participant.city}
+                    </div>
+                  </div>
+                </MobileCardSection>
+
+                {/* Host Info */}
+                {participant.host_name ? (
+                  <MobileCardSection title="Host">
+                    <div className="text-sm">
+                      <p className="font-medium text-gray-900 dark:text-gray-100">{participant.host_name}</p>
+                      {participant.host_place_name && (
+                        <p className="text-gray-600 dark:text-gray-400 text-xs">{participant.host_place_name}</p>
+                      )}
+                    </div>
+                  </MobileCardSection>
+                ) : (
+                  <div className="text-sm text-gray-500 dark:text-gray-400 italic">
+                    No host assigned
+                  </div>
+                )}
+
+                {/* Status & Transportation */}
+                <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
+                  <StatusDropdown
+                    currentStatus={participant.status}
+                    onStatusChange={(status) => handleStatusUpdate(participant.id, status)}
+                    isLoading={updatingStatus === participant.id}
+                  />
+                  <div className="text-sm text-gray-600 dark:text-gray-400 capitalize">
+                    {participant.transportation_mode}
+                    {participant.has_empty_seats && (
+                      <span className="ml-1 text-green-600 dark:text-green-400">
+                        ({participant.available_seats_count} seats)
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </MobileDataCard>
+          ))}
+        </div>
+      )}
+
+      {/* Desktop Table View */}
+      <div className="hidden md:block overflow-x-auto relative">
         <table className="w-full">
           <thead className="sticky top-0 z-10 bg-white dark:bg-gray-900 shadow-sm">
             <tr className="border-b border-gray-200 dark:border-gray-700">
