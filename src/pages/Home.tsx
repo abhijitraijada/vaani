@@ -628,7 +628,7 @@ export default function Home() {
                                       </span>
                                     )}
                                   </div>
-                                  <p className={`text-sm mt-1 ${
+                                  <p className={`text-sm mt-1 text-left ${
                                     isCurrent 
                                       ? 'text-green-600 dark:text-green-400' 
                                       : isPast 
@@ -641,7 +641,7 @@ export default function Home() {
 
                                 {/* Daily Notes */}
                                 {day.daily_notes && (
-                                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 break-words">
+                                  <p className="text-sm text-left text-gray-600 dark:text-gray-400 mb-3 break-words">
                                     {day.daily_notes}
                                   </p>
                                 )}
