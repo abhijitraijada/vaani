@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import type { Participant } from '../../services/endpoints/dashboard.types';
 import { Card } from '../primitives/Layout';
-import { Heading, Text } from '../primitives/Typography';
+import { Heading } from '../primitives/Typography';
 import { Button } from '../primitives/Button';
 import { ExportButton } from '../export';
 import { StatusDropdown } from './StatusDropdown';
@@ -270,7 +270,8 @@ export function ParticipantsTable({
                           <button
                             key={status}
                             onClick={() => {
-                              handleStatusSort(status as MemberStatus);
+                              setSortConfig({ key: 'status', direction: 'asc' });
+                              setStatusSortPriority(status as MemberStatus);
                               setShowSortDropdown(false);
                             }}
                             className="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-sm capitalize flex items-center gap-2"

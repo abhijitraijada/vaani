@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Card } from '../primitives/Layout';
 import { cn } from '../../lib/cn';
 
