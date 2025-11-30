@@ -29,43 +29,69 @@ export default function Home() {
           </Container>
         </section>
 
-        {/* Event Cancellation Notice */}
+        {/* Event Rescheduled Notice */}
         <Section>
           <div className="mx-auto max-w-4xl">
-            <div className="bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-950/40 dark:to-orange-950/40 border-2 border-red-400 dark:border-red-600 rounded-2xl shadow-2xl overflow-hidden">
-              <div className="bg-red-600 dark:bg-red-800 px-6 py-4 text-center">
+            <div className="bg-gradient-to-br from-green-50 to-blue-50 dark:from-green-950/40 dark:to-blue-950/40 border-2 border-green-400 dark:border-green-600 rounded-2xl shadow-2xl overflow-hidden">
+              <div className="bg-green-600 dark:bg-green-800 px-6 py-4 text-center">
                 <h2 className="text-2xl sm:text-3xl font-bold text-white flex items-center justify-center gap-3">
-                  <span className="text-3xl">⚠️</span>
-                  EVENT CANCELLED
-                  <span className="text-3xl">⚠️</span>
+                  <span className="text-3xl">📅</span>
+                  EVENT RESCHEDULED
+                  <span className="text-3xl">📅</span>
                 </h2>
               </div>
               
               <div className="p-6 sm:p-8 space-y-6">
                 <div className="text-center">
-                  <p className="text-xl sm:text-2xl font-bold text-red-900 dark:text-red-200 mb-4">
+                  <p className="text-xl sm:text-2xl font-bold text-green-900 dark:text-green-200 mb-4">
                     Important Announcement
                   </p>
                   <p className="text-base sm:text-lg text-gray-800 dark:text-gray-200 leading-relaxed">
-                    Heavy rain is predicted in Bhal area during dates of the Vasundhara Vani 2025.
+                    The event has been rescheduled to new dates.
                   </p>
                 </div>
 
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 border border-red-200 dark:border-red-800">
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 border border-green-200 dark:border-green-800">
                   <p className="text-base sm:text-lg text-gray-800 dark:text-gray-200 mb-4 leading-relaxed">
-                    After verifying all alternatives, it is decided to cancel the program.
+                    We are pleased to announce that Vasundhara ni Vaani will now be held from 21st to 23rd March 2026.
                   </p>
                   <p className="text-base sm:text-lg text-gray-800 dark:text-gray-200 leading-relaxed">
-                    We very much regret the inconvenience.
+                    We look forward to your participation.
                   </p>
                 </div>
 
-                <div className="text-center pt-4 border-t border-red-200 dark:border-red-800">
+                <div className="text-center pt-4 border-t border-green-200 dark:border-green-800">
                   <p className="text-sm sm:text-base font-semibold text-gray-700 dark:text-gray-300 mb-1">
-                    Originally Scheduled: 31st October - 3rd November 2025
+                    New Dates: 21st - 23rd March 2026
                   </p>
                   <p className="text-sm sm:text-base font-medium text-gray-600 dark:text-gray-400 mt-4">
-                    Vani Committee and Villagers of Bhal Area
+                    Villagers of Bhal Area
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Section>
+
+        {/* Registration Start Date Notice */}
+        <Section>
+          <div className="mx-auto max-w-4xl">
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/40 dark:to-indigo-950/40 border-2 border-blue-400 dark:border-blue-600 rounded-2xl shadow-xl overflow-hidden">
+              <div className="bg-blue-600 dark:bg-blue-800 px-6 py-4 text-center">
+                <h2 className="text-2xl sm:text-3xl font-bold text-white flex items-center justify-center gap-3">
+                  <span className="text-3xl">📝</span>
+                  REGISTRATION
+                  <span className="text-3xl">📝</span>
+                </h2>
+              </div>
+              
+              <div className="p-6 sm:p-8">
+                <div className="text-center">
+                  <p className="text-xl sm:text-2xl font-bold text-blue-900 dark:text-blue-200 mb-2">
+                    Registration Starts From
+                  </p>
+                  <p className="text-2xl sm:text-3xl font-bold text-blue-700 dark:text-blue-300">
+                    15th January 2026
                   </p>
                 </div>
               </div>
@@ -81,15 +107,15 @@ export default function Home() {
         <Section>
         <div className="mb-8 text-center">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Schedule</h2>
-          <p className="text-gray-600 dark:text-gray-400">Detailed itinerary for Vasundhara ni Vaani 2025</p>
+          <p className="text-gray-600 dark:text-gray-400">Detailed itinerary for Vasundhara ni Vaani 2026</p>
         </div>
         
         {/* Mobile Cards View */}
         <div className="block lg:hidden space-y-6">
-          {/* Day 1 - 31st Oct 25 */}
+          {/* Day 1 - 21st March 26 */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
             <div className="bg-indigo-600 text-white px-6 py-4 text-center">
-              <div className="text-2xl font-bold">31<sup>st</sup> Oct 25</div>
+              <div className="text-2xl font-bold">21<sup>st</sup> March 26</div>
             </div>
             
             {/* Morning Session */}
@@ -128,17 +154,17 @@ export default function Home() {
                   <div className="font-semibold text-lg text-gray-900 dark:text-gray-100">मोणपुर - 9 KM</div>
                 </div>
                 <div>
-                  <div className="font-medium text-gray-700 dark:text-gray-300">Shabnam jee, Mir Basu jee, Laxman Das jee</div>
-                  <div className="font-medium text-gray-700 dark:text-gray-300">शबनम जी, मिर बासु जी, लक्ष्मणदास दास जी</div>
+                  <div className="font-medium text-gray-700 dark:text-gray-300">Shabnam jee, Mir Basu Khan, Laxmandas jee</div>
+                  <div className="font-medium text-gray-700 dark:text-gray-300">शबनम जी, मिर बासु खान, लक्ष्मणदास दास जी</div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Day 2 - 1st Nov 25 */}
+          {/* Day 2 - 22nd March 26 */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
             <div className="bg-indigo-600 text-white px-6 py-4 text-center">
-              <div className="text-2xl font-bold">1<sup>st</sup> Nov 25</div>
+              <div className="text-2xl font-bold">22<sup>nd</sup> March 26</div>
             </div>
             
             {/* Morning Session */}
@@ -156,8 +182,8 @@ export default function Home() {
                   <div className="font-semibold text-lg text-gray-900 dark:text-gray-100">रतनपर - 4 KM</div>
                 </div>
                 <div>
-                  <div className="font-medium text-gray-700 dark:text-gray-300">Shabnam jee, Mir Basu jee Laxman Das jee.</div>
-                  <div className="font-medium text-gray-700 dark:text-gray-300">शबनम जी मिर बासु जी, लक्ष्मणदास दास जी</div>
+                  <div className="font-medium text-gray-700 dark:text-gray-300">Shabnam jee, Mir Basu Khan, Laxmandas jee.</div>
+                  <div className="font-medium text-gray-700 dark:text-gray-300">शबनम जी, मिर बासु खान, लक्ष्मणदास दास जी</div>
                 </div>
               </div>
             </div>
@@ -177,17 +203,17 @@ export default function Home() {
                   <div className="font-semibold text-lg text-gray-900 dark:text-gray-100">पच्छेगाम - 12 KM</div>
                 </div>
                 <div>
-                  <div className="font-medium text-gray-700 dark:text-gray-300">Shabnam jee, Mir Basu jee, Santhi Priya, Laxman Das jee.</div>
-                  <div className="font-medium text-gray-700 dark:text-gray-300">शबनम जी, मिर बासु जी, शांति प्रिया, लक्ष्मणदास दास जी</div>
+                  <div className="font-medium text-gray-700 dark:text-gray-300">Shabnam jee, Mir Basu Khan, Laxmandas jee.</div>
+                  <div className="font-medium text-gray-700 dark:text-gray-300">शबनम जी, मिर बासु खान, लक्ष्मणदास दास जी</div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Day 3 - 2nd Nov 25 */}
+          {/* Day 3 - 23rd March 26 */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
             <div className="bg-indigo-600 text-white px-6 py-4 text-center">
-              <div className="text-2xl font-bold">2<sup>nd</sup> Nov 25</div>
+              <div className="text-2xl font-bold">23<sup>rd</sup> March 26</div>
             </div>
             
             {/* Morning Session */}
@@ -205,8 +231,8 @@ export default function Home() {
                   <div className="font-semibold text-lg text-gray-900 dark:text-gray-100">दरेड - 14 KM</div>
                 </div>
                 <div>
-                  <div className="font-medium text-gray-700 dark:text-gray-300">Shabnam jee, Mir Basu jee. Laxman Das jee.</div>
-                  <div className="font-medium text-gray-700 dark:text-gray-300">शबनम जी, मिर बासु जी, लक्ष्मणदास दास जी</div>
+                  <div className="font-medium text-gray-700 dark:text-gray-300">Shabnam jee, Mir Basu Khan, Laxmandas jee.</div>
+                  <div className="font-medium text-gray-700 dark:text-gray-300">शबनम जी, मिर बासु खान, लक्ष्मणदास दास जी</div>
                 </div>
               </div>
             </div>
@@ -256,7 +282,7 @@ export default function Home() {
             <tbody>
               <tr>
                 <td rowSpan={2} className="bg-indigo-50 dark:bg-blue-900/20 px-6 py-4 text-center border-b border-gray-200 dark:border-gray-700">
-                  <div className="text-lg font-semibold">31<sup>st</sup> Oct 25</div>
+                  <div className="text-lg font-semibold">21<sup>st</sup> March 26</div>
                 </td>
                 <td className="bg-blue-50 dark:bg-blue-900/20 px-6 py-4 text-center">
                   <div className="font-semibold">Arrival at Kanpar</div>
@@ -280,13 +306,13 @@ export default function Home() {
                   <div>8 <br/> Onward</div>
                 </td>
                 <td className="bg-blue-50 dark:bg-blue-900/20 px-6 py-4 text-left border-b border-gray-200 dark:border-gray-700">
-                  <div>Shabnam jee, Mir Basu jee, Laxman Das jee</div>
-                  <div className="mt-1">शबनम जी, मिर बासु जी, लक्ष्मणदास दास जी</div>
+                  <div>Shabnam jee, Mir Basu Khan, Laxmandas jee</div>
+                  <div className="mt-1">शबनम जी, मिर बासु खान, लक्ष्मणदास दास जी</div>
                 </td>
               </tr>
               <tr>
                 <td rowSpan={2} className="bg-indigo-50 dark:bg-blue-900/20 px-6 py-4 text-center border-b border-gray-200 dark:border-gray-700">
-                  <div className="text-lg font-semibold">1<sup>st</sup> Nov 25</div>
+                  <div className="text-lg font-semibold">22<sup>nd</sup> March 26</div>
                 </td>
                 <td className="bg-blue-50 dark:bg-blue-900/20 px-6 py-4 text-center">
                   <div className="font-semibold">Ratanpar</div>
@@ -297,8 +323,8 @@ export default function Home() {
                   <div className="text-sm">Morning</div>
                 </td>
                 <td className="bg-blue-50 dark:bg-blue-900/20 px-6 py-4 text-left">
-                  <div>Shabnam jee, Mir Basu jee Laxman Das jee.</div>
-                  <div className="mt-1">शबनम जी मिर बासु जी, लक्ष्मणदास दास जी</div>
+                  <div>Shabnam jee, Mir Basu Khan, Laxmandas jee.</div>
+                  <div className="mt-1">शबनम जी, मिर बासु खान, लक्ष्मणदास दास जी</div>
                 </td>
               </tr>
               <tr>
@@ -310,13 +336,13 @@ export default function Home() {
                   <div>8 <br/> Onward</div>
                 </td>
                 <td className="bg-blue-50 dark:bg-blue-900/20 px-6 py-4 text-left border-b border-gray-200 dark:border-gray-700">
-                  <div>Shabnam jee, Mir Basu jee, Santhi Priya, Laxman Das jee.</div>
-                  <div className="mt-1">शबनम जी, मिर बासु जी, शांति प्रिया, लक्ष्मणदास दास जी</div>
+                  <div>Shabnam jee, Mir Basu Khan, Laxmandas jee.</div>
+                  <div className="mt-1">शबनम जी, मिर बासु खान, लक्ष्मणदास दास जी</div>
                 </td>
               </tr>
               <tr>
                 <td rowSpan={2} className="bg-indigo-50 dark:bg-blue-900/20 px-6 py-4 text-center border-b border-gray-200 dark:border-gray-700">
-                  <div className="text-lg font-semibold">2<sup>nd</sup> Nov 25</div>
+                  <div className="text-lg font-semibold">23<sup>rd</sup> March 26</div>
                 </td>
                 <td className="bg-blue-50 dark:bg-blue-900/20 px-6 py-4 text-center">
                   <div className="font-semibold">Dared</div>
@@ -327,8 +353,8 @@ export default function Home() {
                   <div className="text-sm">Morning</div>
                 </td>
                 <td className="bg-blue-50 dark:bg-blue-900/20 px-6 py-4 text-left">
-                  <div>Shabnam jee, Mir Basu jee. Laxman Das jee.</div>
-                  <div className="mt-1">शबनम जी, मिर बासु जी, लक्ष्मणदास दास जी</div>
+                  <div>Shabnam jee, Mir Basu Khan, Laxmandas jee.</div>
+                  <div className="mt-1">शबनम जी, मिर बासु खान, लक्ष्मणदास दास जी</div>
                 </td>
               </tr>
               <tr>
