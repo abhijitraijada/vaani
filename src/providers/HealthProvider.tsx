@@ -1,7 +1,8 @@
 import { createContext, useContext, useEffect, useState, useMemo } from 'react';
 import type { ReactNode } from 'react';
-import { healthService } from '../services/endpoints/health.service';
-import { useToast } from '../components/feedback/Toast';
+// Health check API disabled until further notice
+// import { healthService } from '../services/endpoints/health.service';
+// import { useToast } from '../components/feedback/Toast';
 
 interface HealthContextType {
   isHealthy: boolean;
@@ -21,47 +22,51 @@ interface HealthProviderProps {
 
 export function HealthProvider({ children }: HealthProviderProps) {
   // console.log('HealthProvider render');
-  const [isHealthy, setIsHealthy] = useState(false);
-  const [lastChecked, setLastChecked] = useState<Date | null>(null);
-  const toast = useToast();
+  // Health check API disabled until further notice
+  const [isHealthy] = useState(false);
+  const [lastChecked] = useState<Date | null>(null);
+  // const [isHealthy, setIsHealthy] = useState(false);
+  // const [lastChecked, setLastChecked] = useState<Date | null>(null);
+  // const toast = useToast();
 
   useEffect(() => {
+    // Health check API disabled until further notice
     // console.log('HealthProvider useEffect running');
-    let cancelled = false;
+    // let cancelled = false;
     
-    const checkHealth = async () => {
-      if (cancelled) return;
-      // console.log('Health check starting');
-      try {
-        const response = await healthService.checkHealth();
-        if (cancelled) return;
-        const isOk = response.status === 'healthy';
-        // console.log('Health check success, updating state');
-        setIsHealthy(isOk);
-        setLastChecked(new Date());
-      } catch (error) {
-        if (cancelled) return;
-        // console.log('Health check failed, updating state');
-        setIsHealthy(false);
-        toast.error({
-          title: 'API Connection Error',
-          description: 'Unable to connect to the server. Some features may be unavailable.',
-        });
-      }
-    };
+    // const checkHealth = async () => {
+    //   if (cancelled) return;
+    //   // console.log('Health check starting');
+    //   try {
+    //     const response = await healthService.checkHealth();
+    //     if (cancelled) return;
+    //     const isOk = response.status === 'healthy';
+    //     // console.log('Health check success, updating state');
+    //     setIsHealthy(isOk);
+    //     setLastChecked(new Date());
+    //   } catch (error) {
+    //     if (cancelled) return;
+    //     // console.log('Health check failed, updating state');
+    //     setIsHealthy(false);
+    //     toast.error({
+    //       title: 'API Connection Error',
+    //       description: 'Unable to connect to the server. Some features may be unavailable.',
+    //     });
+    //   }
+    // };
 
-    // Initial check
-    checkHealth();
+    // // Initial check
+    // checkHealth();
 
-    // Set up periodic health checks every 5 minutes
-    const interval = setInterval(() => {
-      if (!cancelled) checkHealth();
-    }, 5 * 60 * 1000);
+    // // Set up periodic health checks every 5 minutes
+    // const interval = setInterval(() => {
+    //   if (!cancelled) checkHealth();
+    // }, 5 * 60 * 1000);
 
-    return () => {
-      cancelled = true;
-      clearInterval(interval);
-    };
+    // return () => {
+    //   cancelled = true;
+    //   clearInterval(interval);
+    // };
   }, []); // Remove toast dependency
 
   const contextValue = useMemo(() => ({
