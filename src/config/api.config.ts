@@ -8,15 +8,14 @@ const DEFAULT_TIMEOUT = 30000; // 30 seconds
 
 /**
  * API configuration with environment-based URL
- * Development: http://127.0.0.1:8000/api/
- * Production: Uses VITE_API_BASE_URL from Vercel env vars
+ * Uses VITE_API_BASE_URL if set (from .env.local or Vercel env vars)
+ * Falls back to localhost for local development
  */
 export const apiConfig: ApiConfig = {
-  baseURL: import.meta.env.PROD 
-    ? import.meta.env.VITE_API_BASE_URL 
-    : 'http://127.0.0.1:8000/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api',
   timeout: DEFAULT_TIMEOUT,
   headers: {
     'Content-Type': 'application/json',
   },
 };
+

@@ -1,8 +1,6 @@
 import { createContext, useContext, useEffect, useState, useMemo } from 'react';
 import type { ReactNode } from 'react';
-// Health check API disabled until further notice
-// import { healthService } from '../services/endpoints/health.service';
-// import { useToast } from '../components/feedback/Toast';
+import { healthService } from '../services/endpoints/health.service';
 
 interface HealthContextType {
   isHealthy: boolean;
@@ -21,53 +19,40 @@ interface HealthProviderProps {
 }
 
 export function HealthProvider({ children }: HealthProviderProps) {
-  // console.log('HealthProvider render');
-  // Health check API disabled until further notice
-  const [isHealthy] = useState(false);
-  const [lastChecked] = useState<Date | null>(null);
-  // const [isHealthy, setIsHealthy] = useState(false);
-  // const [lastChecked, setLastChecked] = useState<Date | null>(null);
-  // const toast = useToast();
+  const [isHealthy, setIsHealthy] = useState(false);
+  const [lastChecked, setLastChecked] = useState<Date | null>(null);
 
   useEffect(() => {
-    // Health check API disabled until further notice
-    // console.log('HealthProvider useEffect running');
-    // let cancelled = false;
-    
-    // const checkHealth = async () => {
-    //   if (cancelled) return;
-    //   // console.log('Health check starting');
-    //   try {
-    //     const response = await healthService.checkHealth();
-    //     if (cancelled) return;
-    //     const isOk = response.status === 'healthy';
-    //     // console.log('Health check success, updating state');
-    //     setIsHealthy(isOk);
-    //     setLastChecked(new Date());
-    //   } catch (error) {
-    //     if (cancelled) return;
-    //     // console.log('Health check failed, updating state');
-    //     setIsHealthy(false);
-    //     toast.error({
-    //       title: 'API Connection Error',
-    //       description: 'Unable to connect to the server. Some features may be unavailable.',
-    //     });
-    //   }
-    // };
+    let cancelled = false;
 
-    // // Initial check
-    // checkHealth();
+    const checkHealth = async () => {
+      if (cancelled) return;
+      try {
+        const response = await healthService.checkHealth();
+        if (cancelled) return;
+        const isOk = response.status === 'healthy';
+        setIsHealthy(isOk);
+        setLastChecked(new Date());
+      } catch (error) {
+        if (cancelled) return;
+        setIsHealthy(false);
+        console.warn('Health check failed: Unable to connect to the server.');
+      }
+    };
 
-    // // Set up periodic health checks every 5 minutes
-    // const interval = setInterval(() => {
-    //   if (!cancelled) checkHealth();
-    // }, 5 * 60 * 1000);
+    // Initial check
+    checkHealth();
 
-    // return () => {
-    //   cancelled = true;
-    //   clearInterval(interval);
-    // };
-  }, []); // Remove toast dependency
+    // Set up periodic health checks every 5 minutes
+    const interval = setInterval(() => {
+      if (!cancelled) checkHealth();
+    }, 5 * 60 * 1000);
+
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, []);
 
   const contextValue = useMemo(() => ({
     isHealthy,
@@ -80,3 +65,4 @@ export function HealthProvider({ children }: HealthProviderProps) {
     </HealthContext.Provider>
   );
 }
+
