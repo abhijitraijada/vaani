@@ -90,10 +90,10 @@ export default function Home() {
 
           {/* Mobile Cards View */}
           <div className="block lg:hidden space-y-6">
-            {/* Day 1 - 21st March 26 */}
+            {/* Day 1 - 20th March 26 */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
               <div className="bg-indigo-600 text-white px-6 py-4 text-center">
-                <div className="text-2xl font-bold">21<sup>st</sup> March 26</div>
+                <div className="text-2xl font-bold">20<sup>th</sup> March 26</div>
               </div>
 
               {/* Morning Session */}
@@ -139,10 +139,10 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Day 2 - 22nd March 26 */}
+            {/* Day 2 - 21st March 26 */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
               <div className="bg-indigo-600 text-white px-6 py-4 text-center">
-                <div className="text-2xl font-bold">22<sup>nd</sup> March 26</div>
+                <div className="text-2xl font-bold">21<sup>st</sup> March 26</div>
               </div>
 
               {/* Morning Session */}
@@ -188,10 +188,10 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Day 3 - 23rd March 26 */}
+            {/* Day 3 - 22nd March 26 */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
               <div className="bg-indigo-600 text-white px-6 py-4 text-center">
-                <div className="text-2xl font-bold">23<sup>rd</sup> March 26</div>
+                <div className="text-2xl font-bold">22<sup>nd</sup> March 26</div>
               </div>
 
               {/* Morning Session */}
@@ -260,7 +260,7 @@ export default function Home() {
               <tbody>
                 <tr>
                   <td rowSpan={2} className="bg-indigo-50 dark:bg-blue-900/20 px-6 py-4 text-center border-b border-gray-200 dark:border-gray-700">
-                    <div className="text-lg font-semibold">21<sup>st</sup> March 26</div>
+                    <div className="text-lg font-semibold">20<sup>th</sup> March 26</div>
                   </td>
                   <td className="bg-blue-50 dark:bg-blue-900/20 px-6 py-4 text-center">
                     <div className="font-semibold">Arrival at Kanpar</div>
@@ -290,7 +290,7 @@ export default function Home() {
                 </tr>
                 <tr>
                   <td rowSpan={2} className="bg-indigo-50 dark:bg-blue-900/20 px-6 py-4 text-center border-b border-gray-200 dark:border-gray-700">
-                    <div className="text-lg font-semibold">22<sup>nd</sup> March 26</div>
+                    <div className="text-lg font-semibold">21<sup>st</sup> March 26</div>
                   </td>
                   <td className="bg-blue-50 dark:bg-blue-900/20 px-6 py-4 text-center">
                     <div className="font-semibold">Ratanpar</div>
@@ -320,7 +320,7 @@ export default function Home() {
                 </tr>
                 <tr>
                   <td rowSpan={2} className="bg-indigo-50 dark:bg-blue-900/20 px-6 py-4 text-center border-b border-gray-200 dark:border-gray-700">
-                    <div className="text-lg font-semibold">23<sup>rd</sup> March 26</div>
+                    <div className="text-lg font-semibold">22<sup>nd</sup> March 26</div>
                   </td>
                   <td className="bg-blue-50 dark:bg-blue-900/20 px-6 py-4 text-center">
                     <div className="font-semibold">Dared</div>
