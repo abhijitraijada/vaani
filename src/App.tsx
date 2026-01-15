@@ -10,14 +10,15 @@ import Dashboard from './pages/Dashboard'
 import Participants from './pages/Participants'
 import Hosts from './pages/Hosts'
 import AddParticipants from './pages/AddParticipants'
-import ScreenRegister from './pages/participant/ScreenRegister'
-import ScreenPreferences from './pages/participant/ScreenPreferences'
-import ScreenVehicle from './pages/participant/ScreenVehicle'
+// Registration closed - routes commented out
+// import ScreenRegister from './pages/participant/ScreenRegister'
+// import ScreenPreferences from './pages/participant/ScreenPreferences'
+// import ScreenVehicle from './pages/participant/ScreenVehicle'
 import { HealthProvider } from './providers/HealthProvider'
 import { EventProvider } from './providers/EventProvider'
-import { ProtectedParticipantRoute } from './components/shared/ProtectedParticipantRoute'
+// import { ProtectedParticipantRoute } from './components/shared/ProtectedParticipantRoute'
 import { ProtectedRoute } from './components/shared/ProtectedRoute'
-import { RegistrationGate } from './components/shared/RegistrationGate'
+// import { RegistrationGate } from './components/shared/RegistrationGate'
 
 function App() {
   return (
@@ -41,10 +42,11 @@ function App() {
                 <Route path="/hosts/:hostId/add-participants" element={<ProtectedRoute><AddParticipants /></ProtectedRoute>} />
                 <Route path="/registration-members" element={<RegistrationMembers />} />
 
-                {/* Participant protected routes - gated by registration start time */}
+                {/* Participant protected routes - REGISTRATION CLOSED
                 <Route path="/participant/register" element={<RegistrationGate><ProtectedParticipantRoute><ScreenRegister /></ProtectedParticipantRoute></RegistrationGate>} />
                 <Route path="/participant/preferences" element={<RegistrationGate><ProtectedParticipantRoute><ScreenPreferences /></ProtectedParticipantRoute></RegistrationGate>} />
                 <Route path="/participant/vehicle" element={<RegistrationGate><ProtectedParticipantRoute><ScreenVehicle /></ProtectedParticipantRoute></RegistrationGate>} />
+                */}
               </Routes>
             </EventProvider>
           } />

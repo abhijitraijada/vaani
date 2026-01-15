@@ -1,27 +1,29 @@
-import { useState, useEffect } from 'react';
+// import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Section } from '../components/primitives/Layout';
 import { Text } from '../components/primitives/Typography';
 import { Button } from '../components/primitives/Button';
 import { Footer } from '../components/navigation/AppShell';
 import HotelInformation from '../components/shared/HotelInformation';
-import { RegistrationCountdown } from '../components/shared/RegistrationCountdown';
-import { REGISTRATION_START } from '../components/shared/RegistrationGate';
+// Registration closed - unused imports commented out
+// import { RegistrationCountdown } from '../components/shared/RegistrationCountdown';
+// import { REGISTRATION_START } from '../components/shared/RegistrationGate';
 
 export default function Home() {
   const navigate = useNavigate();
-  const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
+  // Registration closed - state no longer needed
+  // const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
 
-  useEffect(() => {
-    const checkRegistration = () => {
-      const now = new Date();
-      setIsRegistrationOpen(now >= REGISTRATION_START);
-    };
+  // useEffect(() => {
+  //   const checkRegistration = () => {
+  //     const now = new Date();
+  //     setIsRegistrationOpen(now >= REGISTRATION_START);
+  //   };
 
-    checkRegistration();
-    const timer = setInterval(checkRegistration, 1000);
-    return () => clearInterval(timer);
-  }, []);
+  //   checkRegistration();
+  //   const timer = setInterval(checkRegistration, 1000);
+  //   return () => clearInterval(timer);
+  // }, []);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -47,33 +49,24 @@ export default function Home() {
         {/* Registration Section - Dynamic based on time */}
         <Section>
           <div className="mx-auto max-w-4xl">
-            {isRegistrationOpen ? (
-              /* Registration is open - show Register button */
-              <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/40 dark:to-purple-950/40 border-2 border-indigo-400 dark:border-indigo-600 rounded-2xl shadow-xl overflow-hidden">
-                <div className="bg-indigo-600 dark:bg-indigo-800 px-6 py-4 text-center">
-                  <h2 className="text-2xl sm:text-3xl font-bold text-white flex items-center justify-center gap-3">
-                    <span className="text-3xl">📝</span>
-                    REGISTRATION OPEN
-                    <span className="text-3xl">📝</span>
-                  </h2>
-                </div>
-                <div className="p-6 sm:p-8 text-center">
-                  <p className="text-lg text-gray-700 dark:text-gray-300 mb-6">
-                    Register now to join us for Vasundhara ni Vaani 2026!
-                  </p>
-                  <Button
-                    variant="primary"
-                    className="h-14 px-8 text-lg font-semibold"
-                    onClick={() => navigate('/participant/register')}
-                  >
-                    Register Now
-                  </Button>
-                </div>
+            {/* Registration is now full */}
+            <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/40 dark:to-orange-950/40 border-2 border-amber-400 dark:border-amber-600 rounded-2xl shadow-xl overflow-hidden">
+              <div className="bg-amber-600 dark:bg-amber-800 px-6 py-4 text-center">
+                <h2 className="text-2xl sm:text-3xl font-bold text-white flex items-center justify-center gap-3">
+                  <span className="text-3xl">🙏</span>
+                  REGISTRATION FULL
+                  <span className="text-3xl">🙏</span>
+                </h2>
               </div>
-            ) : (
-              /* Registration not yet open - show countdown */
-              <RegistrationCountdown startTime={REGISTRATION_START} />
-            )}
+              <div className="p-6 sm:p-8 text-center">
+                <p className="text-lg text-gray-700 dark:text-gray-300">
+                  Registration for Vasundhara ni Vaani 2026 is now full. Thank you for your interest!
+                </p>
+                <p className="text-base text-gray-600 dark:text-gray-400 mt-4">
+                  वसुंधरा नी वाणी 2026 के लिए रजिस्ट्रेशन अब भर चुका है। आपकी रुचि के लिए धन्यवाद!
+                </p>
+              </div>
+            </div>
           </div>
         </Section>
 
