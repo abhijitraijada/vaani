@@ -8,16 +8,13 @@ export function ProtectedParticipantRoute({ children }: { children: React.ReactN
   const { participants, preferencesByDate } = useAppSelector(state => state.registrationDraft);
 
   useEffect(() => {
-    if (true) {
-      navigate('/');      
-    }
     const currentPath = location.pathname;
-    
+
     // Helper function to check if participant data is valid
     const hasValidParticipantData = () => {
       if (!participants || participants.length === 0) return false;
-      
-      return participants.every(participant => 
+
+      return participants.every(participant =>
         participant.name.trim() !== '' &&
         participant.email.trim() !== '' &&
         participant.phone.trim() !== '' &&
@@ -31,8 +28,8 @@ export function ProtectedParticipantRoute({ children }: { children: React.ReactN
     // Helper function to check if preferences data is valid
     const hasValidPreferencesData = () => {
       if (!preferencesByDate || Object.keys(preferencesByDate).length === 0) return false;
-      
-      return Object.values(preferencesByDate).every(pref => 
+
+      return Object.values(preferencesByDate).every(pref =>
         pref.attending !== null
       );
     };
