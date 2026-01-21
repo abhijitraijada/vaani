@@ -7,6 +7,7 @@ export function PhoneLookupInline({ onSearch, placeholder = 'Enter phone number'
   const [phone, setPhone] = useState('');
   return (
     <Flex className={['items-center gap-2', className].filter(Boolean).join(' ')}>
+      <span className="text-gray-500 dark:text-gray-400 font-medium text-sm">+91</span>
       <PhoneInput value={phone} onChange={(e) => setPhone((e.target as HTMLInputElement).value)} placeholder={placeholder} />
       <Button size="sm" onClick={() => onSearch(phone)} loading={loading}>Search</Button>
     </Flex>

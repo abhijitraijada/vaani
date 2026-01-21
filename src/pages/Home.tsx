@@ -1,16 +1,60 @@
-// import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container, Section } from '../components/primitives/Layout';
+import { Container, Section, Card } from '../components/primitives/Layout';
 import { Text } from '../components/primitives/Typography';
 import { Button } from '../components/primitives/Button';
 import { Footer } from '../components/navigation/AppShell';
 import HotelInformation from '../components/shared/HotelInformation';
+import { StatusCheckForm } from '../components/participant/StatusCheckForm';
+import { SearchResultModal } from '../components/participant/SearchResultModal';
+import { registrationService } from '../services/endpoints/registration.service';
+import type { SearchParticipantResponse } from '../services/endpoints/registration.types';
 // Registration closed - unused imports commented out
 // import { RegistrationCountdown } from '../components/shared/RegistrationCountdown';
 // import { REGISTRATION_START } from '../components/shared/RegistrationGate';
 
 export default function Home() {
   const navigate = useNavigate();
+
+  // Phone search state
+  const [searchResult, setSearchResult] = useState<SearchParticipantResponse | null>(null);
+  const [searching, setSearching] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Handle phone search
+  const handlePhoneSearch = async (phone: string) => {
+    if (!phone.trim()) return;
+
+    setSearching(true);
+    setSearchError(null);
+    setSearchResult(null);
+
+    try {
+      const result = await registrationService.searchParticipant(phone);
+      setSearchResult(result);
+      setIsModalOpen(true);
+    } catch (error: unknown) {
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { status?: number } };
+        if (axiosError.response?.status === 404) {
+          setSearchError('No registration found for this phone number.');
+        } else {
+          setSearchError('An error occurred while searching. Please try again.');
+        }
+      } else {
+        setSearchError('An error occurred while searching. Please try again.');
+      }
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  // Close modal
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
   // Registration closed - state no longer needed
   // const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
 
@@ -24,6 +68,7 @@ export default function Home() {
   //   const timer = setInterval(checkRegistration, 1000);
   //   return () => clearInterval(timer);
   // }, []);
+
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -69,6 +114,27 @@ export default function Home() {
             </div>
           </div>
         </Section>
+
+        {/* Phone Search Section */}
+        <Section>
+          <div className="mx-auto max-w-2xl">
+            <StatusCheckForm onSearch={handlePhoneSearch} loading={searching} />
+
+            {/* Search Error */}
+            {searchError && (
+              <Card className="mt-4 border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30">
+                <Text className="text-red-600 dark:text-red-400 text-center">{searchError}</Text>
+              </Card>
+            )}
+          </div>
+        </Section>
+
+        {/* Search Result Modal */}
+        <SearchResultModal
+          result={searchResult}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+        />
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
           <Button variant="secondary" className="h-12 px-6 text-base" onClick={() => window.open('https://www.youtube.com/@vasundharavani3048', '_blank')}>Explore highlights</Button>

@@ -11,10 +11,10 @@ export function StatusCheckForm({
 }) {
   return (
     <Card>
-      <Stack className="gap-3">
+      <Stack className="gap-3 items-center text-center">
         <Heading className="text-lg">Check registration status</Heading>
         <Text className="text-sm text-gray-600 dark:text-gray-400">Enter your phone number to look up your registration.</Text>
-        <Flex>
+        <Flex className="justify-center">
           <PhoneLookupInline onSearch={onSearch} loading={loading} />
         </Flex>
       </Stack>
