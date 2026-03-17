@@ -17,7 +17,7 @@ export default function Home() {
   const navigate = useNavigate();
 
   // Host search state
-  const [searchResult, setSearchResult] = useState<SearchParticipantResponse | null>(null);
+  const [searchResults, setSearchResults] = useState<SearchParticipantResponse[]>([]);
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,11 +30,11 @@ export default function Home() {
     setSearchError(null);
 
     try {
-      const result = await registrationService.searchParticipant(phone);
-      setSearchResult(result);
+      const results = await registrationService.searchParticipant(phone);
+      setSearchResults(results);
       setIsModalOpen(true);
     } catch (error: unknown) {
-      setSearchResult(null);
+      setSearchResults([]);
       if (error && typeof error === 'object' && 'response' in error) {
         const axiosError = error as { response?: { status?: number } };
         if (axiosError.response?.status === 404) {
@@ -118,7 +118,7 @@ export default function Home() {
 
         {/* Host Accommodation Results Modal */}
         <HostAccommodationModal
-          result={searchResult}
+          results={searchResults}
           isOpen={isModalOpen}
           onClose={handleCloseModal}
         />

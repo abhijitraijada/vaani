@@ -7,15 +7,15 @@ import { cn } from '../../lib/cn';
 import { HostAllocationResults } from './HostAllocationResults';
 
 interface HostAccommodationModalProps {
-    result: SearchParticipantResponse | null;
+    results: SearchParticipantResponse[];
     isOpen: boolean;
     onClose: () => void;
 }
 
-export function HostAccommodationModal({ result, isOpen, onClose }: HostAccommodationModalProps) {
+export function HostAccommodationModal({ results, isOpen, onClose }: HostAccommodationModalProps) {
     const { isMobile } = useMediaQuery();
 
-    if (!isOpen || !result) return null;
+    if (!isOpen || results.length === 0) return null;
 
     return (
         <div className={cn(
@@ -56,7 +56,22 @@ export function HostAccommodationModal({ result, isOpen, onClose }: HostAccommod
                     'overflow-y-auto custom-scrollbar',
                     isMobile ? 'flex-1 p-4' : 'p-8 max-h-[75vh]'
                 )}>
-                    <HostAllocationResults result={result} />
+                    <div className="space-y-12">
+                        {results.map((result, index) => (
+                            <div key={result.registration_id} className="relative">
+                                {results.length > 1 && (
+                                    <div className="absolute -top-4 left-0 right-0 flex justify-center">
+                                        <span className="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest border border-indigo-200 dark:border-indigo-800">
+                                            Registration #{index + 1}
+                                        </span>
+                                    </div>
+                                )}
+                                <div className={cn(results.length > 1 && 'pt-4 border-2 border-indigo-50 dark:border-indigo-900/20 rounded-3xl p-4 md:p-6')}>
+                                    <HostAllocationResults result={result} />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
 
                 {/* Footer */}

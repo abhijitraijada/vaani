@@ -12,8 +12,8 @@ class RegistrationService extends BaseService {
     return response.data;
   }
 
-  async searchParticipant(phoneNumber: string): Promise<SearchParticipantResponse> {
-    const response = await api.get<SearchParticipantResponse>(`${this.endpoint}search/participant?phone_number=${encodeURIComponent(phoneNumber)}`);
+  async searchParticipant(phoneNumber: string): Promise<SearchParticipantResponse[]> {
+    const response = await api.get<SearchParticipantResponse[]>(`${this.endpoint}search/participant?phone_number=${encodeURIComponent(phoneNumber)}`);
     return response.data;
   }
 
