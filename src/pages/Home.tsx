@@ -31,7 +31,9 @@ export default function Home() {
 
     try {
       const results = await registrationService.searchParticipant(phone);
-      setSearchResults(results);
+      // Defensive coding: Ensure results is an array even if API returns a single object
+      const normalizedResults = Array.isArray(results) ? results : [results];
+      setSearchResults(normalizedResults);
       setIsModalOpen(true);
     } catch (error: unknown) {
       setSearchResults([]);

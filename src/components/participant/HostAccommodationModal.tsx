@@ -15,7 +15,7 @@ interface HostAccommodationModalProps {
 export function HostAccommodationModal({ results, isOpen, onClose }: HostAccommodationModalProps) {
     const { isMobile } = useMediaQuery();
 
-    if (!isOpen || results.length === 0) return null;
+    if (!isOpen || !results || !Array.isArray(results) || results.length === 0) return null;
 
     return (
         <div className={cn(
