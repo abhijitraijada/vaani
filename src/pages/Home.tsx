@@ -9,7 +9,7 @@ import HotelInformation from '../components/shared/HotelInformation';
 // import { StatusCheckForm } from '../components/participant/StatusCheckForm';
 // import { SearchResultModal } from '../components/participant/SearchResultModal';
 import { HostAccommodationSearch } from '../components/participant/HostAccommodationSearch';
-import { HostAllocationResults } from '../components/participant/HostAllocationResults';
+import { HostAccommodationModal } from '../components/participant/HostAccommodationModal';
 import { registrationService } from '../services/endpoints/registration.service';
 import type { SearchParticipantResponse } from '../services/endpoints/registration.types';
 
@@ -20,6 +20,7 @@ export default function Home() {
   const [searchResult, setSearchResult] = useState<SearchParticipantResponse | null>(null);
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Handle host search
   const handleHostSearch = async (phone: string) => {
@@ -31,6 +32,7 @@ export default function Home() {
     try {
       const result = await registrationService.searchParticipant(phone);
       setSearchResult(result);
+      setIsModalOpen(true);
     } catch (error: unknown) {
       setSearchResult(null);
       if (error && typeof error === 'object' && 'response' in error) {
@@ -46,6 +48,11 @@ export default function Home() {
     } finally {
       setSearching(false);
     }
+  };
+
+  // Close modal
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
   };
 
   return (
@@ -96,36 +103,25 @@ export default function Home() {
         {/* Host Accommodation Search Section */}
         <Section id="accommodation-lookup">
           <div className="mx-auto max-w-4xl">
-            {!searchResult ? (
-              <div className="max-w-2xl mx-auto">
-                <HostAccommodationSearch onSearch={handleHostSearch} loading={searching} />
-                
-                {/* Search Error */}
-                {searchError && (
-                  <Card className="mt-6 border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30 animate-in shake duration-500">
-                    <Text className="text-red-600 dark:text-red-400 text-center font-medium">{searchError}</Text>
-                  </Card>
-                )}
-              </div>
-            ) : (
-              <div className="space-y-6">
-                <HostAllocationResults result={searchResult} />
-                <div className="flex justify-center">
-                  <Button 
-                    variant="secondary" 
-                    onClick={() => {
-                      setSearchResult(null);
-                      setSearchError(null);
-                    }}
-                    className="gap-2"
-                  >
-                    <span>Search another number</span>
-                  </Button>
-                </div>
-              </div>
-            )}
+            <div className="max-w-2xl mx-auto">
+              <HostAccommodationSearch onSearch={handleHostSearch} loading={searching} />
+              
+              {/* Search Error */}
+              {searchError && (
+                <Card className="mt-6 border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30 animate-in shake duration-500">
+                  <Text className="text-red-600 dark:text-red-400 text-center font-medium">{searchError}</Text>
+                </Card>
+              )}
+            </div>
           </div>
         </Section>
+
+        {/* Host Accommodation Results Modal */}
+        <HostAccommodationModal
+          result={searchResult}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+        />
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
           <Button variant="secondary" className="h-12 px-6 text-base" onClick={() => window.open('https://www.youtube.com/@vasundharavani3048', '_blank')}>Explore highlights</Button>

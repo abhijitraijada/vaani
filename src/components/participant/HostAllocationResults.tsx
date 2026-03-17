@@ -28,14 +28,6 @@ export function HostAllocationResults({ result }: HostAllocationResultsProps) {
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="text-center mb-6">
-        <div className="inline-flex items-center justify-center p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-full mb-3">
-          <Icon name="home" className="text-indigo-600 dark:text-indigo-400" width={24} height={24} />
-        </div>
-        <Heading className="text-2xl font-bold text-gray-900 dark:text-gray-100">Your Stay Details</Heading>
-        <Text className="text-gray-600 dark:text-gray-400 mt-1">Found {members.length} participant(s) registered with this number</Text>
-      </div>
-
       <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-1">
         {members.map((member) => (
           <Card key={member.id} className="overflow-hidden border-none shadow-xl bg-white dark:bg-gray-800/50 backdrop-blur-sm">
@@ -60,7 +52,11 @@ export function HostAllocationResults({ result }: HostAllocationResultsProps) {
                 <div className="space-y-4">
                   <Heading className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Host Assignments</Heading>
                   <div className="grid gap-4 sm:grid-cols-2">
-                    {member.host_assignments.map((assignment) => {
+                    {[...member.host_assignments].sort((a, b) => {
+                      const dateA = new Date(scheduleMap[a.event_day_id]?.event_date || 0).getTime();
+                      const dateB = new Date(scheduleMap[b.event_day_id]?.event_date || 0).getTime();
+                      return dateA - dateB;
+                    }).map((assignment) => {
                       const dayInfo = scheduleMap[assignment.event_day_id];
                       return (
                         <div 
