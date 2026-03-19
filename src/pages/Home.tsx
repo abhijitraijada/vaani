@@ -78,10 +78,9 @@ export default function Home() {
           </Container>
         </section>
 
-        {/* Registration Section - Dynamic based on time */}
-        <Section>
+        {/* Registration is now full */}
+        {/* <Section>
           <div className="mx-auto max-w-4xl">
-            {/* Registration is now full */}
             <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/40 dark:to-orange-950/40 border-2 border-amber-400 dark:border-amber-600 rounded-2xl shadow-xl overflow-hidden">
               <div className="bg-amber-600 dark:bg-amber-800 px-6 py-4 text-center">
                 <h2 className="text-2xl sm:text-3xl font-bold text-white flex items-center justify-center gap-3">
@@ -100,14 +99,14 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </Section>
+        </Section> */}
 
         {/* Host Accommodation Search Section */}
         <Section id="accommodation-lookup">
           <div className="mx-auto max-w-4xl">
             <div className="max-w-2xl mx-auto">
               <HostAccommodationSearch onSearch={handleHostSearch} loading={searching} />
-              
+
               {/* Search Error */}
               {searchError && (
                 <Card className="mt-6 border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30 animate-in shake duration-500">
