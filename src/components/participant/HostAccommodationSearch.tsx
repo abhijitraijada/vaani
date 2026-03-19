@@ -19,7 +19,7 @@ export function HostAccommodationSearch({ onSearch, loading }: HostAccommodation
         <div className="w-16 h-16 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-200 dark:shadow-indigo-900/40">
           <Icon name="home" className="text-white" width={32} height={32} />
         </div>
-        
+
         <Stack className="gap-2">
           <Heading className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-gray-100 tracking-tight">
             Check Your Accommodation
@@ -31,10 +31,10 @@ export function HostAccommodationSearch({ onSearch, loading }: HostAccommodation
 
         <div className="w-full max-w-md p-6 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-800">
           <Flex className="justify-center">
-            <PhoneLookupInline 
-              onSearch={onSearch} 
-              loading={loading} 
-              placeholder="98765 XXXXX"
+            <PhoneLookupInline
+              onSearch={onSearch}
+              loading={loading}
+              placeholder="Phone number"
               className="w-full"
             />
           </Flex>
