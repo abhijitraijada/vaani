@@ -2,14 +2,25 @@ import { useState } from 'react';
 import { Flex } from '../primitives/Layout';
 import { PhoneInput } from '../form/Fields';
 import { Button } from '../primitives/Button';
+import { sanitizePhoneNumber } from '../../lib/phoneUtils';
 
 export function PhoneLookupInline({ onSearch, placeholder = 'Enter phone number', loading = false, className }: { onSearch: (phone: string) => void; placeholder?: string; loading?: boolean; className?: string; }) {
   const [phone, setPhone] = useState('');
+  
+  const handleSearch = () => {
+    onSearch(sanitizePhoneNumber(phone));
+  };
+
   return (
     <Flex className={['items-center gap-2', className].filter(Boolean).join(' ')}>
       <span className="text-gray-500 dark:text-gray-400 font-medium text-sm">+91</span>
-      <PhoneInput value={phone} onChange={(e) => setPhone((e.target as HTMLInputElement).value)} placeholder={placeholder} />
-      <Button size="sm" onClick={() => onSearch(phone)} loading={loading}>Search</Button>
+      <PhoneInput 
+        value={phone} 
+        onChange={(e) => setPhone((e.target as HTMLInputElement).value)} 
+        placeholder={placeholder}
+        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+      />
+      <Button size="sm" onClick={handleSearch} loading={loading}>Search</Button>
     </Flex>
   );
 }

@@ -5,6 +5,7 @@ import { Button } from '../primitives/Button';
 import { Field, FieldLabel, TextInput, EmailInput, PhoneInput, NumberInput, Select, Textarea } from '../form/Fields';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '../primitives/Accordion';
 import { validateName, validateEmail, validatePhone, validateCity, validateAge, validateGender, validateLanguage } from '../../lib/validation';
+import { sanitizePhoneNumber } from '../../lib/phoneUtils';
 
 type ValidationErrors = {
   name?: string;
@@ -190,7 +191,7 @@ export function ParticipantRegistrationForm({
                       <FieldLabel>Phone</FieldLabel>
                       <PhoneInput 
                         value={p.phone} 
-                        onChange={(e) => onChange(idx, { phone: e.target.value.trim() })}
+                        onChange={(e) => onChange(idx, { phone: sanitizePhoneNumber(e.target.value) })}
                         onBlur={() => handleBlur(idx, 'phone')}
                         placeholder="+91 98765 43210"
                         required

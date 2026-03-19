@@ -34,7 +34,7 @@ export function HostAccommodationSearch({ onSearch, loading }: HostAccommodation
             <PhoneLookupInline
               onSearch={onSearch}
               loading={loading}
-              placeholder="Phone number"
+              placeholder="##########"
               className="w-full"
             />
           </Flex>

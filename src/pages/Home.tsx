@@ -11,6 +11,7 @@ import HotelInformation from '../components/shared/HotelInformation';
 import { HostAccommodationSearch } from '../components/participant/HostAccommodationSearch';
 import { HostAccommodationModal } from '../components/participant/HostAccommodationModal';
 import { registrationService } from '../services/endpoints/registration.service';
+import { sanitizePhoneNumber } from '../lib/phoneUtils';
 import type { SearchParticipantResponse } from '../services/endpoints/registration.types';
 
 export default function Home() {
@@ -24,13 +25,14 @@ export default function Home() {
 
   // Handle host search
   const handleHostSearch = async (phone: string) => {
-    if (!phone.trim()) return;
+    const cleanedPhone = sanitizePhoneNumber(phone);
+    if (!cleanedPhone) return;
 
     setSearching(true);
     setSearchError(null);
 
     try {
-      const results = await registrationService.searchParticipant(phone);
+      const results = await registrationService.searchParticipant(cleanedPhone);
       // Defensive coding: Ensure results is an array even if API returns a single object
       const normalizedResults = Array.isArray(results) ? results : [results];
       setSearchResults(normalizedResults);
